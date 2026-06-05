@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -819,6 +819,8 @@
         const SUPABASE_ANON_KEY_PADRAO = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zb3JjaXVpdGJ6aGJhZXNlYnhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NjUwNjQsImV4cCI6MjA5NjI0MTA2NH0.3Oxj8EjS94OCnb3mkWM2sucTkGJshdruvA8cDxm0RVg';
         let currentUser = null;
         let authReady = false;
+        let supabaseRealtimeClient = null;
+        let supabaseRealtimeChannel = null;
 
         const permissoesPorCargo = {
             Dono: ['dashboard', 'pedidos', 'clientes-page', 'materias', 'comprar-insumos', 'produtos', 'forja', 'bau-itens', 'movimentacoes-page', 'relatorios', 'perfil', 'backup'],
@@ -1243,6 +1245,7 @@
                 const paginaInicial = temPermissaoPagina('dashboard') ? 'dashboard' : (permissoesPorCargo[getCargoUsuario()] || ['pedidos'])[0];
                 switchPage(paginaInicial);
             }
+            iniciarRealtimeSupabase();
             desenharGraficoMini();
         };
 
@@ -1317,6 +1320,8 @@
             appState.configuracoes.supabaseBaseId = sanitizeText(document.getElementById('config-supabase-base-id')?.value) || 'blackwater_main';
             appState.configuracoes.supabaseAutoSync = document.getElementById('config-supabase-auto')?.value || 'nao';
             stateStorage.save(appState);
+            encerrarRealtimeSupabase();
+            iniciarRealtimeSupabase();
             setSupabaseStatus(appState.configuracoes.supabaseUrl ? "Conexão salva. Teste antes de sincronizar." : "Supabase não configurado.");
             showToast("Conexão Supabase salva!");
         }
@@ -1335,6 +1340,7 @@
                 const { error } = await client.from('erp_state').select('id').eq('id', cfg.baseId).maybeSingle();
                 if(error) throw error;
                 setSupabaseStatus("Conexão OK. A tabela erp_state respondeu corretamente.");
+                iniciarRealtimeSupabase();
                 showToast("Supabase conectado!");
             } catch(error) {
                 console.error(error);
@@ -1409,6 +1415,66 @@
             } catch(error) {
                 console.warn("Supabase inicial indisponível.", error);
             }
+        }
+
+        function atualizarSessaoAposEstadoRemoto() {
+            if(!currentUser) return;
+            const usuario = getUsuariosAtivos().find(u => u.id === currentUser.id);
+            if(usuario) {
+                currentUser = {
+                    id: usuario.id,
+                    nome: usuario.nome,
+                    login: usuario.login,
+                    cargo: normalizarCargo(usuario.cargo),
+                    avatar: usuario.avatar || ''
+                };
+                sessionStorage.setItem(CURRENT_USER_KEY, JSON.stringify(currentUser));
+            } else {
+                logoutUsuario();
+            }
+        }
+
+        function aplicarEstadoRemotoSupabase(estadoRemoto) {
+            if(!estadoRemoto) return;
+            appState = estadoRemoto;
+            normalizarConfiguracoes();
+            stateStorage.save(appState);
+            atualizarSessaoAposEstadoRemoto();
+            configurarTelaAuth();
+            sincronizarTudo();
+            setSupabaseStatus(`Atualizado em tempo real: ${new Date().toLocaleString()}`);
+            showToast("Base atualizada pela nuvem.");
+        }
+
+        function encerrarRealtimeSupabase() {
+            if(supabaseRealtimeClient && supabaseRealtimeChannel) {
+                supabaseRealtimeClient.removeChannel(supabaseRealtimeChannel);
+            }
+            supabaseRealtimeClient = null;
+            supabaseRealtimeChannel = null;
+        }
+
+        function iniciarRealtimeSupabase() {
+            const client = getSupabaseClient();
+            const cfg = getSupabaseConfig();
+            if(!client || !cfg.url || !cfg.key || supabaseRealtimeChannel) return;
+
+            supabaseRealtimeClient = client;
+            supabaseRealtimeChannel = client
+                .channel(`erp_state_realtime_${cfg.baseId}`)
+                .on('postgres_changes', {
+                    event: '*',
+                    schema: 'public',
+                    table: 'erp_state',
+                    filter: `id=eq.${cfg.baseId}`
+                }, payload => {
+                    if(payload?.new?.data) aplicarEstadoRemotoSupabase(payload.new.data);
+                })
+                .subscribe(status => {
+                    if(status === 'SUBSCRIBED') {
+                        setSupabaseStatus("Tempo real ativo. Alterações de outros usuários serão carregadas automaticamente.");
+                    }
+                });
         }
 
         function loadFromLocalStorage() {
