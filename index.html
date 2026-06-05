@@ -1,0 +1,3132 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gráfica de Blackwater - ERP Ultra System</title>
+    <style>
+        /* --- DESIGN SYSTEM & PALETA BLACKWATER --- */
+        :root {
+            --bg-darkest: #030201;
+            --bg-main: #080502;
+            --bg-box: rgba(14, 9, 4, 0.88);
+            --gold-bright: #ffe7a1;
+            --gold-primary: #d9a431;
+            --gold-dark: #7b4a08;
+            --gold-deep: #3f2403;
+            --gold-gradient: linear-gradient(135deg, #fff1b8 0%, #e2ad3a 28%, #9c610e 58%, #f7d46f 100%);
+            --carmim: #8f1412;
+            --carmim-dark: #3f0504;
+            --ruby: #b01818;
+            --text-light: #fff3d0;
+            --text-muted: #b99b61;
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        ::-webkit-scrollbar { display: none; }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        body {
+            background-color: var(--bg-darkest);
+            background-image: 
+                radial-gradient(circle at 50% 18%, rgba(176, 24, 24, 0.18) 0%, transparent 28%),
+                radial-gradient(circle at 50% 8%, rgba(245, 185, 63, 0.18) 0%, transparent 36%),
+                radial-gradient(circle at 8% 18%, rgba(217, 164, 49, 0.18) 0%, transparent 24%),
+                radial-gradient(circle at 92% 16%, rgba(143, 20, 18, 0.22) 0%, transparent 22%),
+                linear-gradient(135deg, rgba(255, 215, 112, 0.05) 0 1px, transparent 1px 16px),
+                radial-gradient(rgba(255, 231, 161, 0.06) 1px, transparent 1px),
+                linear-gradient(180deg, #020100 0%, #0b0602 42%, #050200 100%);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 28px 28px, 34px 34px, 100% 100%;
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            inset: 86px 24px 24px;
+            pointer-events: none;
+            z-index: 0;
+            border: 1px solid rgba(217, 164, 49, 0.26);
+            box-shadow: inset 0 0 0 1px rgba(255, 231, 161, 0.08), inset 0 0 80px rgba(217, 164, 49, 0.08);
+        }
+
+        body::after {
+            inset: 96px 34px 34px;
+            border-color: rgba(143, 20, 18, 0.28);
+            box-shadow: none;
+        }
+
+        /* --- NAVBAR SUPERIOR --- */
+        .header-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: 
+                linear-gradient(90deg, rgba(143, 20, 18, 0.35), transparent 18%, transparent 82%, rgba(143, 20, 18, 0.35)),
+                linear-gradient(to right, #030100, #110902 48%, #030100);
+            border-bottom: 1px solid rgba(255, 231, 161, 0.34);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 40px;
+            height: 70px;
+            z-index: 100;
+            box-shadow: 0 14px 38px rgba(0,0,0,0.95), 0 0 34px rgba(217, 164, 49, 0.16);
+        }
+
+        .brand-header { display: flex; flex-direction: column; justify-content: center; }
+        .brand-header h1 { color: var(--gold-bright); font-size: 1.2rem; letter-spacing: 4px; font-weight: 700; text-transform: uppercase; text-shadow: 0 1px 0 #5b3000, 0 0 18px rgba(255, 213, 95, 0.35); }
+        .brand-header span { font-size: 0.6rem; color: var(--text-muted); letter-spacing: 5px; text-transform: uppercase; margin-top: 2px; }
+
+        .nav-menu { list-style: none; display: flex; gap: 10px; align-items: center; }
+        .nav-item { position: relative; }
+        .nav-link {
+            display: flex; align-items: center; justify-content: center; width: 44px; height: 44px;
+            color: var(--text-muted); text-decoration: none; border-radius: 50%; border: 1px solid rgba(217, 164, 49, 0.16);
+            background: radial-gradient(circle at 50% 28%, rgba(255, 231, 161, 0.12), rgba(5, 3, 1, 0.45) 60%);
+            transition: var(--transition); cursor: pointer;
+        }
+        .nav-link:hover, .nav-link.active {
+            background: radial-gradient(circle at 50% 32%, rgba(255, 231, 161, 0.32), rgba(143, 20, 18, 0.36) 58%, rgba(10, 4, 1, 0.8));
+            border-color: rgba(255, 231, 161, 0.78); color: var(--gold-bright);
+            box-shadow: 0 4px 18px rgba(0,0,0,0.6), 0 0 16px rgba(217, 164, 49, 0.25); transform: translateY(-2px);
+        }
+        .nav-link .tooltip-text {
+            visibility: hidden; opacity: 0; position: absolute; top: 55px; left: 50%; transform: translateX(-50%) translateY(-10px);
+            background: rgba(12, 6, 2, 0.98); color: var(--gold-bright); padding: 8px 14px; border-radius: 4px;
+            border: 1px solid rgba(217, 164, 49, 0.5); font-size: 0.8rem; letter-spacing: 1px; text-transform: uppercase;
+            white-space: nowrap; box-shadow: 0 10px 25px rgba(0,0,0,0.8); transition: opacity 0.3s, transform 0.3s; pointer-events: none;
+        }
+        .nav-link:hover .tooltip-text { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* --- PAINEL PRINCIPAL --- */
+        .main-content { margin-top: 70px; flex-grow: 1; padding: 54px 64px; background: transparent; min-height: calc(100vh - 70px); width: 100%; position: relative; z-index: 1; }
+        .page-section { display: none; opacity: 0; transform: translateY(10px); transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
+        .page-section.active { display: block; opacity: 1; transform: translateY(0); }
+
+        .page-header { margin-bottom: 42px; border-bottom: 1px solid rgba(217, 164, 49, 0.28); padding-bottom: 25px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; position: relative; }
+        .page-header::after { content: '✦'; position: absolute; left: 50%; bottom: -12px; transform: translateX(-50%); color: var(--gold-primary); background: var(--bg-main); padding: 0 16px; text-shadow: 0 0 12px rgba(255, 231, 161, 0.55); }
+        .page-header h2 { color: var(--gold-bright); font-size: 2.2rem; font-weight: 700; text-transform: uppercase; letter-spacing: 4px; text-shadow: 0 2px 0 #5c3101, 0 0 18px rgba(255, 213, 95, 0.34); }
+
+        .search-filter-box { display: flex; gap: 10px; align-items: center; }
+        .search-input { background: rgba(5, 3, 1, 0.82); border: 1px solid rgba(217, 164, 49, 0.45); padding: 11px 15px; color: var(--text-light); border-radius: 4px; font-size: 0.85rem; transition: var(--transition); min-width: 200px; box-shadow: inset 0 0 18px rgba(0,0,0,0.45); }
+        .search-input:focus { outline: none; border-color: var(--gold-bright); box-shadow: 0 0 14px rgba(243, 207, 122, 0.24), inset 0 0 18px rgba(0,0,0,0.55); }
+
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 25px; margin-bottom: 40px; }
+        .quick-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 28px; }
+        .quick-actions .btn-gold { width: 100%; min-height: 46px; }
+        .card-taro { background: linear-gradient(180deg, rgba(32, 16, 5, 0.88), rgba(8, 4, 1, 0.9)); backdrop-filter: blur(10px); border: 1px solid rgba(217, 164, 49, 0.42); border-radius: 6px; padding: 32px 24px; text-align: center; position: relative; box-shadow: 0 14px 34px rgba(0,0,0,0.65), inset 0 0 0 1px rgba(255, 231, 161, 0.08), inset 0 0 42px rgba(143, 20, 18, 0.13); transition: var(--transition); overflow: hidden; }
+        .card-taro::before { content: '✦'; position: absolute; top: 10px; left: 50%; transform: translateX(-50%); color: var(--gold-primary); opacity: 0.42; font-size: 0.9rem; text-shadow: 0 0 12px rgba(255, 231, 161, 0.6); }
+        .card-taro::after { content: ''; position: absolute; inset: 7px; border: 1px solid rgba(217, 164, 49, 0.18); border-radius: 4px; pointer-events: none; }
+        .card-taro:hover { transform: translateY(-4px); border-color: rgba(255, 231, 161, 0.76); box-shadow: 0 18px 42px rgba(0,0,0,0.75), 0 0 22px rgba(217, 164, 49, 0.16); }
+        .card-taro h3 { font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; letter-spacing: 2px; }
+        .card-taro .value { font-size: 1.95rem; color: var(--gold-bright); font-family: 'Times New Roman', serif; text-shadow: 0 1px 0 #5c3101, 0 0 14px rgba(255, 213, 95, 0.28); }
+
+        .progress-bar-container { width: 100%; background: rgba(255, 255, 255, 0.05); height: 4px; border-radius: 2px; margin-top: 12px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: var(--gold-gradient); width: 0%; transition: width 0.5s ease; }
+
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 35px; }
+        .info-grid-full { display: grid; grid-template-columns: 1fr; gap: 35px; margin-top: 20px; }
+
+        .gold-box { background: linear-gradient(180deg, rgba(20, 10, 3, 0.92), rgba(6, 3, 1, 0.9)); backdrop-filter: blur(12px); border: 1px solid rgba(217, 164, 49, 0.36); box-shadow: 0 22px 48px rgba(0,0,0,0.72), inset 0 0 0 1px rgba(255, 231, 161, 0.06), inset 0 0 70px rgba(143, 20, 18, 0.1); border-radius: 6px; padding: 36px; margin-bottom: 42px; position: relative; overflow: hidden; }
+        .gold-box::before { content: '❦'; position: absolute; top: 8px; left: 12px; color: rgba(255, 231, 161, 0.32); font-size: 1.2rem; line-height: 1; }
+        .gold-box::after { content: '❦'; position: absolute; top: 8px; right: 12px; color: rgba(255, 231, 161, 0.32); font-size: 1.2rem; line-height: 1; transform: scaleX(-1); }
+        .gold-box-title { color: var(--gold-bright); margin-bottom: 25px; font-size: 1.28rem; font-weight: 700; letter-spacing: 2.5px; border-bottom: 1px solid rgba(217, 164, 49, 0.25); padding-bottom: 14px; text-transform: uppercase; text-shadow: 0 1px 0 #5c3101, 0 0 12px rgba(255, 213, 95, 0.22); }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 25px; margin-bottom: 25px; }
+        .form-grid-3col { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 25px; margin-bottom: 25px; align-items: flex-end; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1.3px; }
+        .form-control { background: rgba(5, 3, 1, 0.82); border: 1px solid rgba(217, 164, 49, 0.42); border-radius: 5px; padding: 14px; color: var(--text-light); font-size: 0.9rem; transition: var(--transition); box-shadow: inset 0 0 16px rgba(0,0,0,0.48); }
+        .form-control:focus { outline: none; border-color: var(--gold-bright); background: #0e0803; box-shadow: 0 0 14px rgba(255, 231, 161, 0.18), inset 0 0 18px rgba(0,0,0,0.6); }
+
+        .btn-gold { background: var(--gold-gradient); border: 1px solid rgba(255, 231, 161, 0.55); color: #160901; font-weight: bold; padding: 14px 28px; border-radius: 5px; cursor: pointer; transition: var(--transition); text-transform: uppercase; font-size: 0.78rem; letter-spacing: 2px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 7px 18px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -8px 18px rgba(89, 45, 0, 0.2); text-shadow: 0 1px 0 rgba(255,255,255,0.32); }
+        .btn-gold:hover { filter: brightness(1.14) saturate(1.08); transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,0.52), 0 0 18px rgba(217, 164, 49, 0.28); }
+
+        .btn-action { padding: 8px 14px; font-size: 0.72rem; margin-right: 5px; border-radius: 4px; cursor: pointer; border: none; color: white; text-transform: uppercase; letter-spacing: 1px; transition: var(--transition); box-shadow: 0 6px 14px rgba(0,0,0,0.35); }
+        .btn-delete { background: linear-gradient(135deg, rgba(143, 20, 18, 0.92), rgba(57, 4, 3, 0.92)); border: 1px solid var(--carmim); }
+        .btn-delete:hover { background: var(--carmim); }
+        .btn-success-action { background: linear-gradient(135deg, rgba(26, 66, 37, 0.9), rgba(9, 35, 15, 0.9)); border: 1px solid #2ecc71; }
+        .btn-success-action:hover { background: #1a4225; }
+        .btn-blue-action { background: linear-gradient(135deg, rgba(24, 52, 84, 0.9), rgba(8, 21, 39, 0.9)); border: 1px solid #3498db; }
+        .btn-blue-action:hover { background: #183454; }
+
+        .gold-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; border: 1px solid rgba(217, 164, 49, 0.18); background: rgba(4, 2, 1, 0.34); }
+        .gold-table th { background: linear-gradient(180deg, rgba(38, 18, 4, 0.9), rgba(9, 4, 1, 0.9)); color: var(--gold-bright); padding: 16px 20px; border-bottom: 2px solid var(--gold-primary); text-transform: uppercase; font-size: 0.72rem; letter-spacing: 2px; text-shadow: 0 0 8px rgba(255, 231, 161, 0.22); }
+        .gold-table td { padding: 16px 20px; border-bottom: 1px solid rgba(217, 164, 49, 0.12); color: var(--text-light); }
+        .gold-table tr:nth-child(even) { background: rgba(143, 20, 18, 0.035); }
+        .gold-table tr:hover { background: rgba(217, 164, 49, 0.055); }
+
+        .badge { padding: 5px 12px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; display: inline-block; text-transform: uppercase; }
+        .badge-danger { background: rgba(143, 20, 18, 0.32); color: #ff8a77; border: 1px solid var(--carmim); }
+        .badge-success { background: rgba(20, 61, 34, 0.3); color: #4de084; border: 1px solid #27ae60; }
+        .badge-blue { background: rgba(15, 42, 74, 0.3); color: #7ac7ff; border: 1px solid #2980b9; }
+
+        .insumo-item { padding: 12px 18px; margin-bottom: 10px; border-radius: 6px; font-size: 0.85rem; }
+        .insumo-ok { background: rgba(39, 174, 96, 0.08); color: #2ecc71; border: 1px solid rgba(39, 174, 96, 0.3); }
+        .insumo-missing { background: rgba(143, 20, 18, 0.11); color: #ff6b6b; border: 1px solid rgba(143, 20, 18, 0.38); }
+
+        .recipe-builder { background: rgba(5, 3, 1, 0.48); border: 1px dashed rgba(217, 164, 49, 0.45); padding: 25px; border-radius: 6px; margin-bottom: 25px; }
+        .recipe-row { display: flex; gap: 15px; margin-bottom: 15px; align-items: center; }
+
+        .history-log { background: rgba(5, 3, 1, 0.62); border: 1px solid rgba(217, 164, 49, 0.24); padding: 20px; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 0.85rem; max-height: 400px; overflow-y: auto; box-shadow: inset 0 0 28px rgba(0,0,0,0.5); }
+        .history-item { padding: 10px 0; border-bottom: 1px solid rgba(217, 164, 49, 0.08); color: #d2bd86; }
+
+        #toast-container { position: fixed; bottom: 30px; right: 30px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
+        .toast-box { background: rgba(12, 6, 2, 0.96); border: 1px solid var(--gold-primary); color: var(--text-light); padding: 15px 25px; border-radius: 6px; font-size: 0.85rem; box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 18px rgba(217, 164, 49, 0.16); transform: translateY(20px); opacity: 0; animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes slideIn { to { transform: translateY(0); opacity: 1; } }
+
+        .chart-box-container { margin-top: 25px; background: rgba(5, 3, 1, 0.52); padding: 20px; border-radius: 6px; border: 1px solid rgba(217, 164, 49, 0.22); text-align: center; }
+        canvas { max-width: 100%; height: 240px; background: radial-gradient(circle at 50% 20%, rgba(143, 20, 18, 0.12), rgba(0,0,0,0.24)); border-radius: 4px; margin-top: 10px; border: 1px solid rgba(217, 164, 49, 0.12); }
+
+        .pasta-cliente-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .folder-card {
+            background: linear-gradient(180deg, rgba(21, 10, 3, 0.92), rgba(6, 3, 1, 0.9));
+            border: 1px solid rgba(217, 164, 49, 0.34);
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+            transition: var(--transition);
+        }
+
+        .folder-card:hover {
+            border-color: var(--gold-bright);
+            box-shadow: 0 12px 35px rgba(243, 207, 122, 0.15), inset 0 0 42px rgba(143, 20, 18, 0.12);
+        }
+
+        .folder-header {
+            background: linear-gradient(180deg, rgba(42, 20, 5, 0.68), rgba(5, 3, 1, 0.72));
+            padding: 20px;
+            border-bottom: 1px solid rgba(217, 164, 49, 0.22);
+            position: relative;
+        }
+
+        .folder-header h3 {
+            color: var(--gold-bright);
+            font-size: 1.15rem;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .folder-header .folder-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .folder-content-expand {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: max-height 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+            background: rgba(5, 3, 1, 0.54);
+            padding: 0 20px;
+        }
+
+        .folder-card:hover .folder-content-expand {
+            max-height: 500px;
+            opacity: 1;
+            padding: 20px;
+        }
+
+        .member-row {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(217, 164, 49, 0.1);
+        }
+
+        .member-row:last-child {
+            border-bottom: none;
+        }
+
+        .member-info-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .member-name {
+            font-weight: bold;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .member-contacts {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: 'Courier New', monospace;
+            margin-top: 3px;
+        }
+
+        .auth-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background:
+                radial-gradient(circle at 50% 18%, rgba(217, 164, 49, 0.16), transparent 32%),
+                radial-gradient(circle at 20% 80%, rgba(143, 20, 18, 0.22), transparent 28%),
+                rgba(2, 1, 0, 0.96);
+        }
+
+        .auth-card {
+            width: min(480px, 100%);
+            background: linear-gradient(180deg, rgba(20, 10, 3, 0.98), rgba(5, 2, 1, 0.98));
+            border: 1px solid rgba(217, 164, 49, 0.52);
+            border-radius: 6px;
+            padding: 34px;
+            box-shadow: 0 24px 70px rgba(0,0,0,0.86), inset 0 0 0 1px rgba(255, 231, 161, 0.08);
+        }
+
+        .auth-card h2 {
+            color: var(--gold-bright);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 8px;
+            text-shadow: 0 1px 0 #5c3101, 0 0 14px rgba(255, 213, 95, 0.28);
+        }
+
+        .auth-card p { color: var(--text-muted); margin-bottom: 22px; font-size: 0.9rem; line-height: 1.5; }
+        .auth-status { color: #ff8a77; margin-top: 12px; min-height: 20px; font-size: 0.86rem; }
+        .user-session-box { color: var(--text-muted); font-size: 0.72rem; letter-spacing: 1px; text-transform: uppercase; text-align: right; }
+        .user-session-box b { color: var(--gold-bright); }
+        .session-avatar, .profile-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid rgba(255, 231, 161, 0.58);
+            background: radial-gradient(circle at 50% 35%, rgba(255, 231, 161, 0.25), rgba(5, 3, 1, 0.9));
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold-bright);
+            font-weight: bold;
+        }
+        .profile-avatar { width: 120px; height: 120px; font-size: 2rem; }
+        .profile-layout { display: grid; grid-template-columns: 160px 1fr; gap: 28px; align-items: start; }
+        .compact-mode .gold-box { padding: 24px; margin-bottom: 28px; }
+        .compact-mode .main-content { padding-top: 36px; }
+        .compact-mode .gold-table td, .compact-mode .gold-table th { padding: 11px 14px; }
+
+        @media (max-width: 1200px) { .info-grid { grid-template-columns: 1fr; gap: 0; } }
+        @media (max-width: 768px) { body::before, body::after { inset: 126px 10px 10px; } .header-container { padding: 10px 15px; flex-direction: column; height: auto; gap: 10px; } .main-content { margin-top: 120px; padding: 24px 18px; } .page-header { flex-direction: column; align-items: flex-start; } .page-header h2 { font-size: 1.45rem; } .form-grid-3col, .profile-layout { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <div id="toast-container"></div>
+
+    <div id="auth-overlay" class="auth-overlay">
+        <div class="auth-card">
+            <h2 id="auth-title">Acesso Restrito</h2>
+            <p id="auth-subtitle">Entre com o login e senha autorizados para acessar o sistema.</p>
+            <form id="form-login" onsubmit="loginUsuario(event)">
+                <div class="form-group" style="margin-bottom:16px;"><label>Login</label><input type="text" id="login-usuario" class="form-control" autocomplete="username" required></div>
+                <div class="form-group" style="margin-bottom:16px;"><label>Senha</label><input type="password" id="login-senha" class="form-control" autocomplete="current-password" required></div>
+                <button type="submit" class="btn-gold" style="width:100%; height:48px;">Entrar</button>
+            </form>
+            <form id="form-primeiro-dono" onsubmit="criarPrimeiroDono(event)" style="display:none;">
+                <div class="form-group" style="margin-bottom:16px;"><label>Seu Nome</label><input type="text" id="primeiro-nome" class="form-control" required></div>
+                <div class="form-group" style="margin-bottom:16px;"><label>Login do Dono</label><input type="text" id="primeiro-login" class="form-control" autocomplete="username" required></div>
+                <div class="form-group" style="margin-bottom:16px;"><label>Senha do Dono</label><input type="password" id="primeiro-senha" class="form-control" autocomplete="new-password" minlength="4" required></div>
+                <button type="submit" class="btn-gold" style="width:100%; height:48px;">Criar Dono Principal</button>
+            </form>
+            <div id="auth-status" class="auth-status"></div>
+        </div>
+    </div>
+
+    <div class="header-container">
+        <div class="brand-header">
+            <h1>BLACKWATER</h1>
+            <span>G R Á F I C A</span>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item" data-page-link="dashboard"><a class="nav-link active" onclick="switchPage('dashboard')"><span class="icon">🔮</span><span class="tooltip-text">Visão Geral</span></a></li>
+            <li class="nav-item" data-page-link="pedidos"><a class="nav-link" onclick="switchPage('pedidos')"><span class="icon">📜</span><span class="tooltip-text">Pedidos</span></a></li>
+            <li class="nav-item" data-page-link="clientes-page"><a class="nav-link" onclick="switchPage('clientes-page')"><span class="icon">📝</span><span class="tooltip-text">Clientes</span></a></li>
+            <li class="nav-item" data-page-link="materias"><a class="nav-link" onclick="switchPage('materias')"><span class="icon">🌿</span><span class="tooltip-text">Matérias-Primas</span></a></li>
+            <li class="nav-item" data-page-link="comprar-insumos"><a class="nav-link" onclick="switchPage('comprar-insumos')"><span class="icon">🛒</span><span class="tooltip-text">Comprar Insumos</span></a></li>
+            <li class="nav-item" data-page-link="produtos"><a class="nav-link" onclick="switchPage('produtos')"><span class="icon">⚗️</span><span class="tooltip-text">Produtos & Receitas</span></a></li>
+            <li class="nav-item" data-page-link="forja"><a class="nav-link" onclick="switchPage('forja')"><span class="icon">🔥</span><span class="tooltip-text">Produção</span></a></li>
+            <li class="nav-item" data-page-link="bau-itens"><a class="nav-link" onclick="switchPage('bau-itens')"><span class="icon">📦</span><span class="tooltip-text">Estoque Pronto</span></a></li>
+            <li class="nav-item" data-page-link="movimentacoes-page"><a class="nav-link" onclick="switchPage('movimentacoes-page')"><span class="icon">💸</span><span class="tooltip-text">Movimentações</span></a></li>
+            <li class="nav-item" data-page-link="relatorios"><a class="nav-link" onclick="switchPage('relatorios')"><span class="icon">📊</span><span class="tooltip-text">Contabilidade</span></a></li>
+            <li class="nav-item" data-page-link="perfil"><a class="nav-link" onclick="switchPage('perfil')"><span class="icon">👤</span><span class="tooltip-text">Perfil</span></a></li>
+            <li class="nav-item" data-page-link="backup"><a class="nav-link" onclick="switchPage('backup')"><span class="icon">🔑</span><span class="tooltip-text">Configurações</span></a></li>
+        </ul>
+        <div class="user-session-box" id="user-session-box" style="display:none;">
+            <div><span id="session-avatar" class="session-avatar">U</span></div>
+            <div><b id="session-user-name">Usuário</b></div>
+            <div id="session-user-role">Cargo</div>
+            <button type="button" class="btn-action btn-delete" style="margin-top:6px;" onclick="logoutUsuario()">Sair</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+
+        <!-- ================= DASHBOARD ================= -->
+        <div id="page-dashboard" class="page-section active">
+            <div class="page-header"><h2>Visão Geral</h2></div>
+            <div class="dashboard-grid">
+                <div class="card-taro"><h3>Caixa Geral</h3><div class="value" id="dash-patrimonio">R$ 0,00</div></div>
+                <div class="card-taro"><h3>Lucro Real</h3><div class="value" id="dash-lucro-acumulado" style="color:#2ecc71;">R$ 0,00</div></div>
+                <div class="card-taro"><h3>Pedidos Ativos</h3><div class="value" id="dash-qtd-pedidos">0</div></div>
+                <div class="card-taro"><h3>Demanda Estimada</h3><div class="value" id="dash-previsao-demanda" style="color:#5dade2;">0 un</div></div>
+            </div>
+            <div class="quick-actions">
+                <button type="button" class="btn-gold" onclick="switchPage('pedidos')">Novo Pedido</button>
+                <button type="button" class="btn-gold" onclick="switchPage('comprar-insumos')">Comprar Insumos</button>
+                <button type="button" class="btn-gold" onclick="switchPage('forja')">Produzir Itens</button>
+                <button type="button" class="btn-gold" onclick="switchPage('bau-itens')">Ver Estoque</button>
+            </div>
+            
+            <div class="gold-box chart-box-container">
+                <div class="gold-box-title">Gráfico de Performance Comercial (Fluxo Dinâmico)</div>
+                <canvas id="miniAnalyticChart"></canvas>
+            </div>
+
+            <div class="info-grid">
+                <div class="gold-box" style="margin-bottom: 0;">
+                    <div class="gold-box-title">Alerta de Estoque Baixo (Insumos)</div>
+                    <div class="table-responsive"><table class="gold-table"><thead><tr><th>Item</th><th>Tipo</th><th>Qtd</th><th>Status</th></tr></thead><tbody id="dash-estoque-baixo"></tbody></table></div>
+                </div>
+                <div class="gold-box" style="margin-bottom: 0;">
+                    <div class="gold-box-title">Alerta de Compra (Matéria-Prima)</div>
+                    <div class="table-responsive"><table class="gold-table"><thead><tr><th>Matéria-Prima</th><th>Categoria</th><th>Estoque</th><th>Comprar</th></tr></thead><tbody id="dash-materias-compra-baixo"></tbody></table></div>
+                </div>
+            </div>
+
+            <!-- REGISTRO COMPLETO DE PEDIDOS NO DASHBOARD COM HISTÓRICO SALVO -->
+            <div class="info-grid-full">
+                <div class="gold-box">
+                    <div class="gold-box-title">📋 Registro de Pedidos Ativos & Histórico de Vendas</div>
+                    <div class="table-responsive">
+                        <table class="gold-table">
+                            <thead>
+                                <tr>
+                                    <th>Comprador / Local</th>
+                                    <th>Contato</th>
+                                    <th>Produto / Qtd</th>
+                                    <th>Valor Total</th>
+                                    <th>Status / Recibo</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dash-registro-pedidos-body">
+                                <!-- Preenchido dinamicamente via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= ABA PEDIDOS ================= -->
+        <div id="page-pedidos" class="page-section">
+            <div class="page-header">
+                <h2>Gestão de Pedidos & Encomendas</h2>
+                <div class="search-filter-box"><input type="text" id="filter-pedidos" class="search-input" placeholder="🔍 Buscar cliente ou produto..." oninput="renderPedidos()"></div>
+            </div>
+            <div class="gold-box">
+                <div class="gold-box-title" id="pedido-form-title">Novo Pedido</div>
+                <form id="form-pedido" onsubmit="savePedido(event)">
+                    <div class="form-grid">
+                        <div class="form-group"><label>Cliente</label><input type="text" id="ped-cliente" class="form-control" placeholder="Nome do cliente" required></div>
+                        <div class="form-group"><label>Empresa / Local (opcional)</label><input type="text" id="ped-empresa" class="form-control" placeholder="Ex: Gráfica de BW"></div>
+                        <div class="form-group"><label>Contato</label><input type="text" id="ped-pombo" class="form-control" placeholder="Ex: Pombo 472" required></div>
+                    </div>
+                    <div class="form-grid-3col">
+                        <div class="form-group"><label>Produto</label><select id="ped-produto-id" class="form-control" onchange="checkPedidoInsumosPreview()" required></select></div>
+                        <div class="form-group"><label>Quantidade</label><input type="number" id="ped-quantidade" class="form-control" min="1" value="1" oninput="checkPedidoInsumosPreview()" required></div>
+                        <div class="form-group"><button type="button" class="btn-gold" style="width:100%; height:48px;" onclick="adicionarProdutoAoPedido()">Adicionar ao Pedido</button></div>
+                    </div>
+                    <div id="pedido-itens-lista" style="margin-top:15px; display:none;"></div>
+                    <div id="pedido-resumo-box" style="margin-top:15px; padding:16px; background:rgba(0,0,0,0.35); border:1px solid rgba(217,164,49,0.22); border-radius:6px; display:none;">
+                        <div style="color:var(--gold-bright); text-transform:uppercase; letter-spacing:2px; font-size:0.78rem; margin-bottom:8px;">Resumo do Pedido</div>
+                        <div id="pedido-resumo-lista" style="color:var(--text-muted); font-size:0.9rem;"></div>
+                        <div style="margin-top:10px; color:var(--gold-bright); font-weight:bold;">Total Estimado: <span id="pedido-resumo-total">R$ 0,00</span></div>
+                    </div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:15px;">
+                        <button type="submit" id="pedido-submit-btn" class="btn-gold" style="flex:1; min-width:220px; height:48px;">Salvar Pedido</button>
+                        <button type="button" id="pedido-cancel-edit-btn" class="btn-delete btn-action" style="display:none; height:48px; padding:0 22px;" onclick="cancelarEdicaoPedido()">Cancelar Edição</button>
+                    </div>
+                </form>
+                <div id="pedido-insumos-preview-box" style="margin-top:25px; padding:20px; background:rgba(0,0,0,0.4); border-radius:6px; display:none; border: 1px solid rgba(140, 106, 36, 0.3);">
+                    <h4 style="color:var(--gold-bright); margin-bottom:12px;">🔍 Disponibilidade:</h4>
+                    <div id="pedido-insumos-lista"></div>
+                </div>
+            </div>
+            <div class="gold-box">
+                <div class="gold-box-title">Pedidos Pendentes</div>
+                <div class="table-responsive"><table class="gold-table"><thead><tr><th>Cliente/Empresa</th><th>Contato</th><th>Produto</th><th>Qtd</th><th>Estoque/Insumos</th><th>Ações</th></tr></thead><tbody id="table-pedidos-body"></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- ================= ABA CLIENTES & PASTAS ================= -->
+        <div id="page-clientes-page" class="page-section">
+            <div class="page-header">
+                <h2>Clientes & Organizações</h2>
+            </div>
+            <div class="gold-box">
+                <div class="gold-box-title">Cadastrar Cliente ou Membro</div>
+                <form id="form-cliente-pasta" onsubmit="saveClientePasta(event)">
+                    <div class="form-grid">
+                        <div class="form-group"><label>Empresa / Grupo</label><input type="text" id="cli-local" class="form-control" placeholder="Ex: Gráfica de BW" required></div>
+                        <div class="form-group"><label>Nome</label><input type="text" id="cli-nome" class="form-control" placeholder="Ex: Aberama Gold" required></div>
+                        <div class="form-group">
+                            <label>Cargo do Membro</label>
+                            <select id="cli-cargo" class="form-control" required>
+                                <option value="Dono">Dono</option>
+                                <option value="Gerente">Gerente</option>
+                                <option value="Funcionário">Funcionário</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label>Contatos</label><input type="text" id="cli-contatos" class="form-control" placeholder="Ex: Pombo 12, Telegram, Fone" required></div>
+                    </div>
+                    <button type="submit" class="btn-gold">Salvar Cliente</button>
+                </form>
+            </div>
+
+            <h3 style="color: var(--gold-bright); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px;">📁 Clientes Cadastrados</h3>
+            <div class="pasta-cliente-container" id="clientes-pastas-list"></div>
+        </div>
+
+        <!-- ================= MATÉRIAS-PRIMAS ================= -->
+        <div id="page-materias" class="page-section">
+            <div class="page-header">
+                <h2>Gestão de Matérias-Primas</h2>
+                <div class="search-filter-box"><input type="text" id="filter-materias" class="search-input" placeholder="🔍 Filtrar por Categoria..." oninput="renderMaterias()"></div>
+            </div>
+            <div class="gold-box">
+                <div class="gold-box-title" id="materia-form-title">Cadastrar Matéria-Prima</div>
+                <form id="form-materia" onsubmit="saveMateria(event)">
+                    <div class="form-grid">
+                        <div class="form-group"><label>Nome do Material</label><input type="text" id="mat-nome" class="form-control" placeholder="Ex: Papel Premium 300g" required></div>
+                        <div class="form-group"><label>Categoria</label><input type="text" id="mat-categoria" class="form-control" placeholder="Tintas, Papel..."></div>
+                        <div class="form-group"><label>Preço Unitário (R$)</label><input type="number" step="0.01" id="mat-valor" class="form-control" required></div>
+                        <div class="form-group"><label>Quantidade em Estoque</label><input type="number" id="mat-estoque" class="form-control" required value="0"></div>
+                    </div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button type="submit" id="materia-submit-btn" class="btn-gold">Salvar Matéria-Prima</button>
+                        <button type="button" id="materia-cancel-edit-btn" class="btn-delete btn-action" style="display:none; padding:0 22px;" onclick="cancelarEdicaoMateria()">Cancelar Edição</button>
+                    </div>
+                </form>
+            </div>
+            <div class="gold-box">
+                <div class="gold-box-title">Matérias-Primas Cadastradas</div>
+                <div class="table-responsive"><table class="gold-table"><thead><tr><th>Nome</th><th>Categoria</th><th>Preço Unit.</th><th>Estoque</th><th>Ações</th></tr></thead><tbody id="table-materias-body"></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- ================= ABA COMPRAR INSUMOS ================= -->
+        <div id="page-comprar-insumos" class="page-section">
+            <div class="page-header"><h2>Comprar Insumos</h2></div>
+            <div class="gold-box">
+                <div class="gold-box-title">Carrinho de Matérias-Primas</div>
+                <div class="search-filter-box" style="margin-bottom:18px;">
+                    <input type="text" id="filter-compra-insumos" class="search-input" placeholder="🔍 Buscar insumo por nome ou categoria..." oninput="renderCompraInsumosLista()">
+                </div>
+                <form id="form-comprar-insumo" onsubmit="executarCompraInsumo(event)">
+                    <div id="compra-carrinho-box" style="margin-bottom:20px; padding:18px; background:rgba(5,5,5,0.45); border:1px solid rgba(140,106,36,0.25); border-radius:6px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:15px; flex-wrap:wrap;">
+                            <div>
+                                <div style="color:var(--gold-bright); text-transform:uppercase; letter-spacing:2px; font-size:0.8rem;">Itens Selecionados</div>
+                                <div id="compra-carrinho-lista" style="margin-top:8px; color:var(--text-muted); font-size:0.9rem;">Nenhum insumo selecionado.</div>
+                            </div>
+                            <button type="submit" class="btn-gold" id="btn-confirmar-compra-insumos" style="height:48px;">🛒 Confirmar Compra</button>
+                        </div>
+                    </div>
+                    <div id="compra-preview-custo" style="margin-top:15px; font-size:0.95rem; color:var(--text-muted);">
+                        Total da Compra: <span id="compra-custo-valor" style="color:var(--gold-bright); font-weight:bold;">R$ 0,00</span>
+                        <span id="compra-validacao-caixa" style="margin-left: 15px; font-size: 0.85rem;"></span>
+                    </div>
+                    <div class="table-responsive" style="margin-top:20px;">
+                        <table class="gold-table">
+                            <thead><tr><th>Matéria-Prima</th><th>Categoria</th><th>Preço Unit.</th><th>Estoque Atual</th><th>Qtd Comprar</th></tr></thead>
+                            <tbody id="table-compra-insumos-body"></tbody>
+                        </table>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ================= PRODUTOS & RECEITAS ================= -->
+        <div id="page-produtos" class="page-section">
+            <div class="page-header"><h2>Produtos & Receitas</h2></div>
+            <div class="gold-box">
+                <div class="gold-box-title" id="produto-form-title">Cadastrar Produto</div>
+                <form id="form-produto" onsubmit="saveProduto(event)">
+                    <div class="form-grid">
+                        <div class="form-group"><label>Nome do Produto</label><input type="text" id="prod-nome" class="form-control" required></div>
+                        <div class="form-group"><label>Categoria</label><input type="text" id="prod-categoria" class="form-control" placeholder="Impressos..."></div>
+                        <div class="form-group"><label>Rendimento por Produção</label><input type="number" id="prod-rendimento" class="form-control" value="1" min="1" oninput="calculateRecipeCost()" required></div>
+                        <div class="form-group"><label>Margem de Lucro (%)</label><input type="number" step="0.1" id="prod-lucro-perc" class="form-control" value="100" oninput="calculateRecipeCost()" required></div>
+                    </div>
+                    <div class="recipe-builder">
+                        <label style="font-weight:bold; color:var(--gold-bright); display:block; margin-bottom:12px;">Matérias-Primas da Receita</label>
+                        <div id="recipe-ingredients-container"></div>
+                        <button type="button" class="btn-gold" style="padding:8px 14px; font-size:0.75rem; margin-top:5px;" onclick="addIngredientRow()">+ Adicionar Matéria-Prima</button>
+                    </div>
+                    <div class="form-grid" style="background: rgba(0,0,0,0.4); padding: 20px; border-radius: 6px; border: 1px solid rgba(202, 163, 75, 0.2);">
+                        <div class="form-group"><strong>Custo do Ciclo:</strong> <span id="prod-custo-preview" style="color:var(--gold-bright); margin-top:5px;">R$ 0,00</span></div>
+                        <div class="form-group"><strong>Custo Unitário:</strong> <span id="prod-custoun-preview" style="color:var(--gold-bright); margin-top:5px;">R$ 0,00</span></div>
+                        <div class="form-group"><strong>Preço de Venda Unitário:</strong> <span id="prod-venda-preview" style="color:var(--gold-bright); margin-top:5px;">R$ 0,00</span></div>
+                    </div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:20px;">
+                        <button type="submit" id="produto-submit-btn" class="btn-gold">Salvar Produto</button>
+                        <button type="button" id="produto-cancel-edit-btn" class="btn-delete btn-action" style="display:none; padding:0 22px;" onclick="cancelarEdicaoProduto()">Cancelar Edição</button>
+                    </div>
+                </form>
+            </div>
+            <div class="gold-box">
+                <div class="gold-box-title">Catálogo de Produtos</div>
+                <div class="table-responsive"><table class="gold-table"><thead><tr><th>Produto</th><th>Categoria</th><th>Rendimento</th><th>Custo Unit.</th><th>Preço Venda</th><th>Estoque</th><th>Ações</th></tr></thead><tbody id="table-produtos-body"></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- ================= FORJA DE PRODUÇÃO ================= -->
+        <div id="page-forja" class="page-section">
+            <div class="page-header"><h2>Produção de Itens</h2></div>
+            <div class="gold-box">
+                <div class="gold-box-title">Produzir Produto</div>
+                <form id="form-forja" onsubmit="executarForja(event)">
+                    <div class="form-grid-3col">
+                        <div class="form-group"><label>Produto</label><select id="forja-produto-id" class="form-control" onchange="verificarInsumosForja()" required></select></div>
+                        <div class="form-group"><label>Quantidade de Itens a Produzir</label><input type="number" id="forja-ciclos" class="form-control" min="1" value="1" oninput="verificarInsumosForja()" required></div>
+                        <div class="form-group"><button type="submit" class="btn-gold" style="width:100%; height:48px;">🔥 Produzir</button></div>
+                    </div>
+                </form>
+                <div id="forja-preview-box" style="margin-top:25px; padding:20px; background:rgba(0,0,0,0.4); border-radius:6px; display:none; border: 1px solid rgba(140, 106, 36, 0.3);">
+                    <h4 style="color:var(--gold-bright); margin-bottom:12px;">📋 Insumos Necessários:</h4>
+                    <div id="forja-insumos-lista"></div>
+                    <div id="forja-assistente-compra" style="margin-top: 15px; padding: 10px; border-left: 3px solid var(--gold-bright); display: none; background: rgba(255,255,255,0.02);"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= ABA BAÚ DE ITENS ================= -->
+        <div id="page-bau-itens" class="page-section">
+            <div class="page-header"><h2>Estoque de Produtos Prontos</h2></div>
+            <div class="gold-box">
+                <div class="gold-box-title">Ajustar Estoque</div>
+                <form id="form-ajuste-bau" onsubmit="executarAjusteBau(event)">
+                    <div class="form-grid">
+                        <div class="form-group"><label>Produto</label><select id="ajuste-bau-prod-id" class="form-control" required></select></div>
+                        <div class="form-group"><label>Ação</label><select id="ajuste-bau-tipo" class="form-control" required><option value="adicionar">Adicionar ao Estoque</option><option value="remover">Remover do Estoque</option><option value="perda">Registrar Perda</option></select></div>
+                        <div class="form-group"><label>Quantidade</label><input type="number" id="ajuste-bau-qtd" class="form-control" min="1" value="1" required></div>
+                    </div>
+                    <button type="submit" class="btn-gold">Salvar Ajuste</button>
+                </form>
+            </div>
+            <div class="gold-box">
+                <div class="gold-box-title">Produtos em Estoque</div>
+                <div class="table-responsive"><table class="gold-table"><thead><tr><th>Nome do Produto</th><th>Categoria</th><th>Preço Un. Venda</th><th>Volume em Estoque</th><th>Status</th></tr></thead><tbody id="table-bau-estoque-body"></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- ================= ABA DE MOVIMENTAÇÕES ================= -->
+        <div id="page-movimentacoes-page" class="page-section">
+            <div class="page-header"><h2>Fluxo de Caixa</h2></div>
+            <div class="gold-box">
+                <div class="gold-box-title">Registrar Entrada ou Saída</div>
+                <form id="form-movimentacao-manual" onsubmit="registrarMovimentacaoManual(event)">
+                    <div class="form-grid">
+                        <div class="form-group"><label>Tipo</label><select id="mov-manual-tipo" class="form-control" required><option value="entrada_direta">Entrada de Dinheiro</option><option value="saida_direta">Saída de Dinheiro</option></select></div>
+                        <div class="form-group"><label>Categoria</label><select id="mov-manual-categoria" class="form-control" required><option value="Operacional">Operacional</option><option value="Infraestrutura">Infraestrutura / Equipamentos</option><option value="Logistica">Logística / Entrega</option><option value="Marketing">Marketing / Divulgação</option></select></div>
+                        <div class="form-group"><label>Descrição / Motivo</label><input type="text" id="mov-manual-motivo" class="form-control" required></div>
+                        <div class="form-group"><label>Valor (R$)</label><input type="number" step="0.01" id="mov-manual-valor" class="form-control" required></div>
+                    </div>
+                    <button type="submit" class="btn-gold">Salvar Movimentação</button>
+                </form>
+            </div>
+            <div class="gold-box">
+                <div class="gold-box-title">Histórico Geral de Movimentações</div>
+                <div class="history-log" id="movimentacoes-log-completo"></div>
+            </div>
+        </div>
+
+        <!-- ================= CONTABILIDADE / RELATÓRIOS ================= -->
+        <div id="page-relatorios" class="page-section">
+            <div class="page-header"><h2>Relatórios</h2></div>
+            <div class="dashboard-grid">
+                <div class="card-taro"><h3>Faturamento em Caixa</h3><div class="value" id="rep-total-caixa">R$ 0,00</div></div>
+                <div class="card-taro"><h3>Lucro Estimado</h3><div class="value" id="rep-lucro-estimado">R$ 0,00</div></div>
+            </div>
+            <div class="gold-box">
+                <div class="gold-box-title">Espelho Compacto do Fluxo de Caixa</div>
+                <div class="history-log" id="movimentacoes-log"></div>
+            </div>
+        </div>
+
+        <!-- ================= PERFIL ================= -->
+        <div id="page-perfil" class="page-section">
+            <div class="page-header"><h2>Meu Perfil</h2></div>
+            <div class="gold-box">
+                <div class="gold-box-title">Dados do Usuário</div>
+                <form id="form-perfil" onsubmit="salvarPerfilUsuario(event)">
+                    <div class="profile-layout">
+                        <div style="text-align:center;">
+                            <div id="perfil-avatar-preview" class="profile-avatar">U</div>
+                            <button type="button" class="btn-action btn-delete" style="margin-top:12px;" onclick="removerImagemPerfil()">Remover Imagem</button>
+                        </div>
+                        <div>
+                            <div class="form-grid">
+                                <div class="form-group"><label>Nome de Exibição</label><input type="text" id="perfil-nome" class="form-control" required></div>
+                                <div class="form-group"><label>Login</label><input type="text" id="perfil-login" class="form-control" disabled></div>
+                                <div class="form-group"><label>Cargo</label><input type="text" id="perfil-cargo" class="form-control" disabled></div>
+                                <div class="form-group"><label>Imagem de Perfil</label><input type="file" id="perfil-imagem" class="form-control" accept="image/*" onchange="previewImagemPerfil(event)"></div>
+                            </div>
+                            <button type="submit" class="btn-gold">Salvar Perfil</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ================= CONFIGURAÇÕES / BACKUP ================= -->
+        <div id="page-backup" class="page-section">
+            <div class="page-header"><h2>Backup e Configurações</h2></div>
+            <div class="gold-box">
+                <div class="gold-box-title">Configurações do Sistema</div>
+                <form id="form-configuracoes" onsubmit="salvarConfiguracoes(event)">
+                    <div class="form-grid">
+                        <div class="form-group"><label>Nome da Empresa</label><input type="text" id="config-empresa-nome" class="form-control" placeholder="Ex: Gráfica de Blackwater"></div>
+                        <div class="form-group"><label>Subtítulo do Cabeçalho</label><input type="text" id="config-subtitulo-sistema" class="form-control" placeholder="Ex: Gráfica"></div>
+                        <div class="form-group"><label>Contato Padrão</label><input type="text" id="config-contato-padrao" class="form-control" placeholder="Ex: Pombo 472"></div>
+                        <div class="form-group"><label>Estoque Baixo Padrão</label><input type="number" id="config-estoque-baixo" class="form-control" min="0" value="5"></div>
+                        <div class="form-group"><label>Meta de Reposição Padrão</label><input type="number" id="config-meta-reposicao" class="form-control" min="1" value="10"></div>
+                        <div class="form-group"><label>Título do Login</label><input type="text" id="config-login-titulo" class="form-control" placeholder="Acesso Restrito"></div>
+                        <div class="form-group"><label>Texto do Login</label><input type="text" id="config-login-texto" class="form-control" placeholder="Entre com seu acesso autorizado"></div>
+                        <div class="form-group">
+                            <label>Cor de Destaque</label>
+                            <select id="config-cor-destaque" class="form-control">
+                                <option value="gold">Dourado Blackwater</option>
+                                <option value="ruby">Rubi</option>
+                                <option value="green">Verde Estoque</option>
+                                <option value="blue">Azul Gerencial</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label>Modo Compacto</label><select id="config-modo-compacto" class="form-control"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
+                        <div class="form-group"><label>Observação Padrão do Recibo</label><input type="text" id="config-recibo-observacao" class="form-control" placeholder="Mensagem exibida nos recibos"></div>
+                    </div>
+                    <button type="submit" class="btn-gold">Salvar Configurações</button>
+                </form>
+            </div>
+            <div class="gold-box" id="box-controle-acesso">
+                <div class="gold-box-title">Controle de Acesso</div>
+                <form id="form-usuario" onsubmit="criarUsuarioSistema(event)">
+                    <div class="form-grid">
+                        <div class="form-group"><label>Nome</label><input type="text" id="user-nome" class="form-control" placeholder="Nome da pessoa" required></div>
+                        <div class="form-group"><label>Login</label><input type="text" id="user-login" class="form-control" placeholder="Login de acesso" required></div>
+                        <div class="form-group"><label>Senha</label><input type="password" id="user-senha" class="form-control" minlength="4" placeholder="Senha provisória" required></div>
+                        <div class="form-group">
+                            <label>Cargo</label>
+                            <select id="user-cargo" class="form-control" required>
+                                <option value="Dono">Dono - acesso total</option>
+                                <option value="Gerente">Gerente - gestão e entregas</option>
+                                <option value="Funcionario">Funcionário - lançar pedidos</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-gold">Criar Acesso</button>
+                </form>
+                <div class="table-responsive" style="margin-top:22px;">
+                    <table class="gold-table">
+                        <thead><tr><th>Nome</th><th>Login</th><th>Cargo</th><th>Status</th><th>Ações</th></tr></thead>
+                        <tbody id="table-usuarios-body"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="gold-box" id="box-supabase-sync">
+                <div class="gold-box-title">Banco Online Supabase</div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Project URL</label><input type="text" id="config-supabase-url" class="form-control" placeholder="https://xxxx.supabase.co"></div>
+                    <div class="form-group"><label>Anon Public Key</label><input type="password" id="config-supabase-key" class="form-control" placeholder="eyJhbGci..."></div>
+                    <div class="form-group"><label>ID da Base</label><input type="text" id="config-supabase-base-id" class="form-control" value="blackwater_main"></div>
+                    <div class="form-group"><label>Salvar Online Automático</label><select id="config-supabase-auto" class="form-control"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
+                </div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button type="button" class="btn-gold" onclick="salvarConfiguracoesSupabase()">Salvar Conexão</button>
+                    <button type="button" class="btn-action btn-blue-action" style="padding:14px 22px;" onclick="testarSupabase()">Testar</button>
+                    <button type="button" class="btn-action btn-success-action" style="padding:14px 22px;" onclick="enviarDadosSupabase()">Enviar para Nuvem</button>
+                    <button type="button" class="btn-action btn-blue-action" style="padding:14px 22px;" onclick="baixarDadosSupabase()">Baixar da Nuvem</button>
+                </div>
+                <div id="supabase-status" style="margin-top:14px; color:var(--text-muted); font-size:0.9rem;">Não configurado.</div>
+            </div>
+            <div class="gold-box">
+                <div class="gold-box-title">Backup</div>
+                <button onclick="exportarJSON()" class="btn-gold">Exportar Base como JSON</button>
+                <button onclick="resetarSistema()" class="btn-delete btn-action" style="padding:14px 28px; margin-left:10px;">Resetar Base de Dados</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- --- CORE ENGINE JAVASCRIPT --- -->
+    <script>
+        let appState = {
+            caixa: 0.00,
+            lucroAcumulado: 0.00,
+            materias: [],
+            produtos: [],
+            pedidos: [],
+            movimentacoes: [],
+            clientesPastas: [],
+            usuarios: [],
+            configuracoes: {}
+        };
+
+        let recipeRowsCount = 0;
+        let pedidoItensTemp = [];
+        let compraInsumosQtdTemp = {};
+        let pedidoEditId = null;
+        let materiaEditId = null;
+        let produtoEditId = null;
+        let perfilImagemTemp = null;
+
+        const STORAGE_KEY = 'FamiliaGoldERP_State_V6';
+        const BACKUP_KEY = 'FamiliaGoldERP_Backup_Preventivo';
+        const CURRENT_USER_KEY = 'FamiliaGoldERP_CurrentUser';
+        const SUPABASE_URL_PADRAO = '';
+        const SUPABASE_ANON_KEY_PADRAO = '';
+        let currentUser = null;
+        let authReady = false;
+
+        const permissoesPorCargo = {
+            Dono: ['dashboard', 'pedidos', 'clientes-page', 'materias', 'comprar-insumos', 'produtos', 'forja', 'bau-itens', 'movimentacoes-page', 'relatorios', 'perfil', 'backup'],
+            Gerente: ['dashboard', 'pedidos', 'clientes-page', 'materias', 'comprar-insumos', 'produtos', 'forja', 'bau-itens', 'movimentacoes-page', 'relatorios', 'perfil'],
+            Funcionario: ['pedidos', 'clientes-page', 'perfil']
+        };
+
+        const permissoesAcaoPorCargo = {
+            Dono: ['usuarios', 'configuracoes', 'backup', 'resetar', 'entregarPedido', 'gerenciarEstoque', 'gerenciarProdutos', 'financeiro', 'relatorios'],
+            Gerente: ['entregarPedido', 'gerenciarEstoque', 'gerenciarProdutos', 'financeiro', 'relatorios'],
+            Funcionario: ['criarPedido']
+        };
+
+        const stateStorage = {
+            load() {
+                const data = localStorage.getItem(STORAGE_KEY);
+                return data ? JSON.parse(data) : null;
+            },
+            save(state) {
+                const serializedState = JSON.stringify(state);
+                localStorage.setItem(STORAGE_KEY, serializedState);
+                localStorage.setItem(BACKUP_KEY, serializedState);
+            },
+            clear() {
+                localStorage.removeItem(STORAGE_KEY);
+            }
+        };
+
+        const formatBRL = (valor) => new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        }).format(Number(valor) || 0);
+
+        const sanitizeText = (value) => String(value || "")
+            .replace(/[<>]/g, "")
+            .trim();
+
+        const safeNumber = (value, fallback = 0) => {
+            const number = Number(value);
+            return Number.isFinite(number) ? number : fallback;
+        };
+
+        const mapById = (items) => new Map((items || []).map(item => [item.id, item]));
+
+        const getCargoUsuario = () => currentUser?.cargo || '';
+
+        function temPermissaoPagina(pageId) {
+            if(!currentUser) return false;
+            return (permissoesPorCargo[getCargoUsuario()] || []).includes(pageId);
+        }
+
+        function temPermissaoAcao(acao) {
+            if(!currentUser) return false;
+            return (permissoesAcaoPorCargo[getCargoUsuario()] || []).includes(acao);
+        }
+
+        function exigirAcao(acao, mensagem = "Seu cargo não tem permissão para esta ação.") {
+            if(temPermissaoAcao(acao)) return true;
+            showToast(mensagem);
+            return false;
+        }
+
+        function normalizarCargo(cargo) {
+            if(cargo === 'Funcionário') return 'Funcionario';
+            return ['Dono', 'Gerente', 'Funcionario'].includes(cargo) ? cargo : 'Funcionario';
+        }
+
+        async function hashSenha(senha) {
+            const text = String(senha || '');
+            if(window.crypto?.subtle) {
+                const bytes = new TextEncoder().encode(text);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', bytes);
+                return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+            }
+            return btoa(unescape(encodeURIComponent(text)));
+        }
+
+        function getUsuariosAtivos() {
+            appState.usuarios = appState.usuarios || [];
+            return appState.usuarios.filter(u => u.ativo !== false);
+        }
+
+        function setAuthStatus(message) {
+            const status = document.getElementById('auth-status');
+            if(status) status.innerText = message || '';
+        }
+
+        function configurarTelaAuth() {
+            const temUsuarios = getUsuariosAtivos().length > 0;
+            const overlay = document.getElementById('auth-overlay');
+            const loginForm = document.getElementById('form-login');
+            const setupForm = document.getElementById('form-primeiro-dono');
+            const title = document.getElementById('auth-title');
+            const subtitle = document.getElementById('auth-subtitle');
+            if(!overlay || !loginForm || !setupForm) return;
+
+            if(temUsuarios) {
+                loginForm.style.display = 'block';
+                setupForm.style.display = 'none';
+                normalizarConfiguracoes();
+                if(title) title.innerText = appState.configuracoes.loginTitulo || 'Acesso Restrito';
+                if(subtitle) subtitle.innerText = appState.configuracoes.loginTexto || 'Entre com o login e senha autorizados para acessar o sistema.';
+            } else {
+                loginForm.style.display = 'none';
+                setupForm.style.display = 'block';
+                if(title) title.innerText = 'Criar Dono Principal';
+                if(subtitle) subtitle.innerText = 'Crie o primeiro acesso. Depois disso, somente Donos poderão liberar novos usuários.';
+            }
+            overlay.style.display = currentUser ? 'none' : 'flex';
+        }
+
+        async function criarPrimeiroDono(e) {
+            e.preventDefault();
+            if(getUsuariosAtivos().length > 0) {
+                setAuthStatus('O Dono principal já foi criado.');
+                return;
+            }
+            const nome = sanitizeText(document.getElementById('primeiro-nome').value);
+            const login = sanitizeText(document.getElementById('primeiro-login').value).toLowerCase();
+            const senha = document.getElementById('primeiro-senha').value;
+            if(!nome || !login || senha.length < 4) {
+                setAuthStatus('Preencha nome, login e senha com pelo menos 4 caracteres.');
+                return;
+            }
+            appState.usuarios.push({
+                id: 'user_' + Date.now(),
+                nome,
+                login,
+                cargo: 'Dono',
+                senhaHash: await hashSenha(senha),
+                avatar: '',
+                ativo: true,
+                criadoEm: new Date().toLocaleString()
+            });
+            saveToLocalStorage();
+            setAuthStatus('Dono criado. Entre com o login e senha.');
+            configurarTelaAuth();
+        }
+
+        async function loginUsuario(e) {
+            e.preventDefault();
+            const login = sanitizeText(document.getElementById('login-usuario').value).toLowerCase();
+            const senhaHash = await hashSenha(document.getElementById('login-senha').value);
+            const usuario = getUsuariosAtivos().find(u => u.login === login && u.senhaHash === senhaHash);
+            if(!usuario) {
+                setAuthStatus('Login ou senha inválidos.');
+                return;
+            }
+            currentUser = {
+                id: usuario.id,
+                nome: usuario.nome,
+                login: usuario.login,
+                cargo: normalizarCargo(usuario.cargo),
+                avatar: usuario.avatar || ''
+            };
+            sessionStorage.setItem(CURRENT_USER_KEY, JSON.stringify(currentUser));
+            authReady = true;
+            setAuthStatus('');
+            document.getElementById('auth-overlay').style.display = 'none';
+            aplicarPermissoesInterface();
+            switchPage(temPermissaoPagina('dashboard') ? 'dashboard' : (permissoesPorCargo[getCargoUsuario()] || ['pedidos'])[0]);
+            showToast(`Bem-vindo, ${currentUser.nome}!`);
+        }
+
+        function logoutUsuario() {
+            currentUser = null;
+            authReady = false;
+            sessionStorage.removeItem(CURRENT_USER_KEY);
+            document.getElementById('user-session-box').style.display = 'none';
+            document.getElementById('auth-overlay').style.display = 'flex';
+            configurarTelaAuth();
+        }
+
+        function carregarSessaoUsuario() {
+            const saved = sessionStorage.getItem(CURRENT_USER_KEY);
+            if(!saved) return;
+            try {
+                const parsed = JSON.parse(saved);
+                const usuario = getUsuariosAtivos().find(u => u.id === parsed.id);
+                if(usuario) {
+                    currentUser = {
+                        id: usuario.id,
+                        nome: usuario.nome,
+                        login: usuario.login,
+                        cargo: normalizarCargo(usuario.cargo),
+                        avatar: usuario.avatar || ''
+                    };
+                    authReady = true;
+                } else {
+                    sessionStorage.removeItem(CURRENT_USER_KEY);
+                }
+            } catch(e) {
+                sessionStorage.removeItem(CURRENT_USER_KEY);
+            }
+        }
+
+        function aplicarPermissoesInterface() {
+            const autenticado = Boolean(currentUser);
+            document.querySelector('.header-container').style.display = autenticado ? 'flex' : 'none';
+            document.querySelector('.main-content').style.display = autenticado ? 'block' : 'none';
+
+            const sessionBox = document.getElementById('user-session-box');
+            if(sessionBox) {
+                sessionBox.style.display = autenticado ? 'block' : 'none';
+                document.getElementById('session-user-name').innerText = currentUser?.nome || '';
+                document.getElementById('session-user-role').innerText = currentUser?.cargo || '';
+                renderAvatarElement(document.getElementById('session-avatar'), currentUser);
+            }
+
+            document.querySelectorAll('[data-page-link]').forEach(item => {
+                const pageId = item.getAttribute('data-page-link');
+                item.style.display = temPermissaoPagina(pageId) ? '' : 'none';
+            });
+
+            const boxAcesso = document.getElementById('box-controle-acesso');
+            if(boxAcesso) boxAcesso.style.display = temPermissaoAcao('usuarios') ? 'block' : 'none';
+
+            renderUsuariosSistema();
+            renderPerfilUsuario();
+        }
+
+        function renderAvatarElement(element, usuario) {
+            if(!element) return;
+            const nome = usuario?.nome || usuario?.login || 'U';
+            const avatar = usuario?.avatar || '';
+            if(avatar) {
+                element.innerHTML = `<img src="${avatar}" alt="Perfil" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+            } else {
+                element.innerHTML = sanitizeText(nome).charAt(0).toUpperCase() || 'U';
+            }
+        }
+
+        function renderPerfilUsuario() {
+            if(!currentUser) return;
+            const usuario = appState.usuarios.find(u => u.id === currentUser.id);
+            const nome = document.getElementById('perfil-nome');
+            const login = document.getElementById('perfil-login');
+            const cargo = document.getElementById('perfil-cargo');
+            if(nome) nome.value = usuario?.nome || currentUser.nome || '';
+            if(login) login.value = usuario?.login || currentUser.login || '';
+            if(cargo) cargo.value = normalizarCargo(usuario?.cargo || currentUser.cargo);
+            renderAvatarElement(document.getElementById('perfil-avatar-preview'), usuario || currentUser);
+        }
+
+        function previewImagemPerfil(event) {
+            const file = event.target.files?.[0];
+            if(!file) return;
+            if(file.size > 900000) {
+                showToast("Escolha uma imagem menor que 900 KB para manter o sistema leve.");
+                event.target.value = '';
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = () => {
+                perfilImagemTemp = reader.result;
+                renderAvatarElement(document.getElementById('perfil-avatar-preview'), { ...currentUser, avatar: perfilImagemTemp });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removerImagemPerfil() {
+            perfilImagemTemp = '';
+            const usuario = appState.usuarios.find(u => u.id === currentUser?.id);
+            if(usuario) usuario.avatar = '';
+            if(currentUser) currentUser.avatar = '';
+            sessionStorage.setItem(CURRENT_USER_KEY, JSON.stringify(currentUser));
+            saveToLocalStorage();
+            aplicarPermissoesInterface();
+            showToast("Imagem de perfil removida.");
+        }
+
+        function salvarPerfilUsuario(e) {
+            e.preventDefault();
+            if(!currentUser) return;
+            const usuario = appState.usuarios.find(u => u.id === currentUser.id);
+            if(!usuario) return;
+            const nome = sanitizeText(document.getElementById('perfil-nome').value);
+            if(!nome) {
+                showToast("Informe um nome para o perfil.");
+                return;
+            }
+            usuario.nome = nome;
+            if(perfilImagemTemp !== null) usuario.avatar = perfilImagemTemp;
+            currentUser.nome = usuario.nome;
+            currentUser.avatar = usuario.avatar || '';
+            sessionStorage.setItem(CURRENT_USER_KEY, JSON.stringify(currentUser));
+            perfilImagemTemp = null;
+            saveToLocalStorage();
+            aplicarPermissoesInterface();
+            showToast("Perfil atualizado!");
+        }
+
+        function renderUsuariosSistema() {
+            const tbody = document.getElementById('table-usuarios-body');
+            if(!tbody || !temPermissaoAcao('usuarios')) return;
+            tbody.innerHTML = (appState.usuarios || []).map(u => `
+                <tr>
+                    <td><b>${u.nome}</b></td>
+                    <td>${u.login}</td>
+                    <td>${normalizarCargo(u.cargo)}</td>
+                    <td>${u.ativo === false ? '<span class="badge badge-danger">Bloqueado</span>' : '<span class="badge badge-success">Ativo</span>'}</td>
+                    <td>
+                        <button class="btn-action btn-blue-action" onclick="alternarUsuarioSistema('${u.id}')">${u.ativo === false ? 'Ativar' : 'Bloquear'}</button>
+                        <button class="btn-action btn-delete" onclick="removerUsuarioSistema('${u.id}')">Remover</button>
+                    </td>
+                </tr>
+            `).join('') || "<tr><td colspan='5' style='text-align:center; opacity:0.5;'>Nenhum usuário cadastrado.</td></tr>";
+        }
+
+        async function criarUsuarioSistema(e) {
+            e.preventDefault();
+            if(!exigirAcao('usuarios')) return;
+            const nome = sanitizeText(document.getElementById('user-nome').value);
+            const login = sanitizeText(document.getElementById('user-login').value).toLowerCase();
+            const senha = document.getElementById('user-senha').value;
+            const cargo = normalizarCargo(document.getElementById('user-cargo').value);
+            if(!nome || !login || senha.length < 4) {
+                showToast("Preencha nome, login e senha com pelo menos 4 caracteres.");
+                return;
+            }
+            if((appState.usuarios || []).some(u => u.login === login)) {
+                showToast("Já existe um usuário com esse login.");
+                return;
+            }
+            appState.usuarios.push({
+                id: 'user_' + Date.now(),
+                nome,
+                login,
+                cargo,
+                senhaHash: await hashSenha(senha),
+                avatar: '',
+                ativo: true,
+                criadoEm: new Date().toLocaleString()
+            });
+            saveToLocalStorage();
+            document.getElementById('form-usuario').reset();
+            showToast("Acesso criado com sucesso!");
+        }
+
+        function alternarUsuarioSistema(id) {
+            if(!exigirAcao('usuarios')) return;
+            const usuario = appState.usuarios.find(u => u.id === id);
+            if(!usuario) return;
+            if(usuario.id === currentUser?.id) {
+                showToast("Você não pode bloquear o próprio acesso.");
+                return;
+            }
+            usuario.ativo = usuario.ativo === false;
+            saveToLocalStorage();
+            showToast(usuario.ativo ? "Usuário ativado." : "Usuário bloqueado.");
+        }
+
+        function removerUsuarioSistema(id) {
+            if(!exigirAcao('usuarios')) return;
+            const usuariosAtivos = getUsuariosAtivos();
+            if(id === currentUser?.id) {
+                showToast("Você não pode remover o próprio usuário logado.");
+                return;
+            }
+            if(usuariosAtivos.filter(u => normalizarCargo(u.cargo) === 'Dono').length <= 1 && usuariosAtivos.some(u => u.id === id && normalizarCargo(u.cargo) === 'Dono')) {
+                showToast("Mantenha pelo menos um Dono ativo.");
+                return;
+            }
+            if(confirm("Remover este acesso?")) {
+                appState.usuarios = appState.usuarios.filter(u => u.id !== id);
+                saveToLocalStorage();
+                showToast("Acesso removido.");
+            }
+        }
+
+        const getConfiguracoesPadrao = () => ({
+            empresaNome: 'Gráfica de Blackwater',
+            subtituloSistema: 'G R Á F I C A',
+            contatoPadrao: '',
+            estoqueBaixoPadrao: 5,
+            metaReposicaoPadrao: 10,
+            loginTitulo: 'Acesso Restrito',
+            loginTexto: 'Entre com o login e senha autorizados para acessar o sistema.',
+            corDestaque: 'gold',
+            modoCompacto: 'nao',
+            reciboObservacao: '',
+            supabaseUrl: '',
+            supabaseKey: '',
+            supabaseBaseId: 'blackwater_main',
+            supabaseAutoSync: 'nao'
+        });
+
+        function normalizarConfiguracoes() {
+            appState.configuracoes = {
+                ...getConfiguracoesPadrao(),
+                ...(appState.configuracoes || {})
+            };
+            appState.configuracoes.estoqueBaixoPadrao = Math.max(0, parseInt(appState.configuracoes.estoqueBaixoPadrao) || 5);
+            appState.configuracoes.metaReposicaoPadrao = Math.max(1, parseInt(appState.configuracoes.metaReposicaoPadrao) || 10);
+            appState.configuracoes.corDestaque = ['gold', 'ruby', 'green', 'blue'].includes(appState.configuracoes.corDestaque) ? appState.configuracoes.corDestaque : 'gold';
+            appState.configuracoes.modoCompacto = appState.configuracoes.modoCompacto === 'sim' ? 'sim' : 'nao';
+            appState.configuracoes.supabaseAutoSync = appState.configuracoes.supabaseAutoSync === 'sim' ? 'sim' : 'nao';
+            appState.configuracoes.supabaseBaseId = sanitizeText(appState.configuracoes.supabaseBaseId) || 'blackwater_main';
+        }
+
+        function getEmpresaNome() {
+            normalizarConfiguracoes();
+            return appState.configuracoes.empresaNome || 'Gráfica de Blackwater';
+        }
+
+        function populateSelect(selectId, items, optionRenderer) {
+            const select = document.getElementById(selectId);
+            if(!select) return null;
+            const valAnterior = select.value;
+            select.innerHTML = (items || []).map(optionRenderer).join('');
+            if(valAnterior && (items || []).some(item => item.id === valAnterior)) select.value = valAnterior;
+            return select;
+        }
+
+        window.onload = async function() {
+            loadFromLocalStorage();
+            await baixarDadosSupabaseInicial();
+            carregarSessaoUsuario();
+            configurarTelaAuth();
+            aplicarPermissoesInterface();
+            if(currentUser) {
+                const paginaInicial = temPermissaoPagina('dashboard') ? 'dashboard' : (permissoesPorCargo[getCargoUsuario()] || ['pedidos'])[0];
+                switchPage(paginaInicial);
+            }
+            desenharGraficoMini();
+        };
+
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            if(!container) return;
+            const toast = document.createElement('div');
+            toast.className = 'toast-box';
+            toast.innerText = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = "slideIn 0.4s reverse forwards";
+                setTimeout(() => toast.remove(), 400);
+            }, 3500);
+        }
+
+        function registrarMovimentacao({ operacao, qtd, nome, valorTotalMov = 0, motivo, classe = 'Operacional' }) {
+            appState.movimentacoes.unshift({
+                data: new Date().toLocaleString(),
+                operacao,
+                qtd,
+                nome,
+                valorTotalMov,
+                motivo,
+                classe
+            });
+        }
+
+        function saveToLocalStorage() {
+            try {
+                stateStorage.save(appState);
+                sincronizarTudo();
+                if(appState.configuracoes?.supabaseAutoSync === 'sim') {
+                    enviarDadosSupabase(true);
+                }
+            } catch (error) {
+                console.error(error);
+                showToast("Não foi possível salvar os dados no navegador.");
+            }
+        }
+
+        function setSupabaseStatus(message) {
+            const status = document.getElementById('supabase-status');
+            if(status) status.innerText = message;
+        }
+
+        function getSupabaseConfig() {
+            normalizarConfiguracoes();
+            return {
+                url: appState.configuracoes.supabaseUrl || SUPABASE_URL_PADRAO,
+                key: appState.configuracoes.supabaseKey || SUPABASE_ANON_KEY_PADRAO,
+                baseId: appState.configuracoes.supabaseBaseId || 'blackwater_main'
+            };
+        }
+
+        function getSupabaseClient() {
+            const cfg = getSupabaseConfig();
+            if(!cfg.url || !cfg.key) return null;
+            if(!window.supabase?.createClient) return null;
+            return window.supabase.createClient(cfg.url, cfg.key);
+        }
+
+        function clonarEstadoParaNuvem() {
+            return JSON.parse(JSON.stringify(appState));
+        }
+
+        async function salvarConfiguracoesSupabase() {
+            if(!exigirAcao('configuracoes')) return;
+            normalizarConfiguracoes();
+            appState.configuracoes.supabaseUrl = sanitizeText(document.getElementById('config-supabase-url')?.value);
+            appState.configuracoes.supabaseKey = sanitizeText(document.getElementById('config-supabase-key')?.value);
+            appState.configuracoes.supabaseBaseId = sanitizeText(document.getElementById('config-supabase-base-id')?.value) || 'blackwater_main';
+            appState.configuracoes.supabaseAutoSync = document.getElementById('config-supabase-auto')?.value || 'nao';
+            stateStorage.save(appState);
+            setSupabaseStatus(appState.configuracoes.supabaseUrl ? "Conexão salva. Teste antes de sincronizar." : "Supabase não configurado.");
+            showToast("Conexão Supabase salva!");
+        }
+
+        async function testarSupabase() {
+            if(!exigirAcao('configuracoes')) return;
+            await salvarConfiguracoesSupabase();
+            const client = getSupabaseClient();
+            const cfg = getSupabaseConfig();
+            if(!client) {
+                setSupabaseStatus("Informe Project URL e Anon Public Key.");
+                showToast("Supabase ainda não configurado.");
+                return;
+            }
+            try {
+                const { error } = await client.from('erp_state').select('id').eq('id', cfg.baseId).maybeSingle();
+                if(error) throw error;
+                setSupabaseStatus("Conexão OK. A tabela erp_state respondeu corretamente.");
+                showToast("Supabase conectado!");
+            } catch(error) {
+                console.error(error);
+                setSupabaseStatus(`Erro no teste: ${error.message || 'confira URL, anon key, tabela erp_state e policies.'}`);
+                showToast("Falha ao testar Supabase. Veja o detalhe em Configurações.");
+            }
+        }
+
+        async function enviarDadosSupabase(silencioso = false) {
+            if(!silencioso && !exigirAcao('backup')) return;
+            const client = getSupabaseClient();
+            const cfg = getSupabaseConfig();
+            if(!client) {
+                if(!silencioso) showToast("Configure o Supabase primeiro.");
+                return;
+            }
+            try {
+                const { error } = await client.from('erp_state').upsert({
+                    id: cfg.baseId,
+                    data: clonarEstadoParaNuvem(),
+                    updated_at: new Date().toISOString()
+                });
+                if(error) throw error;
+                setSupabaseStatus(`Último envio: ${new Date().toLocaleString()}`);
+                if(!silencioso) showToast("Dados enviados para a nuvem!");
+            } catch(error) {
+                console.error(error);
+                setSupabaseStatus(`Erro ao enviar: ${error.message || 'não foi possível salvar na nuvem.'}`);
+                if(!silencioso) showToast("Falha ao enviar para Supabase.");
+            }
+        }
+
+        async function baixarDadosSupabase() {
+            if(!exigirAcao('backup')) return;
+            const client = getSupabaseClient();
+            const cfg = getSupabaseConfig();
+            if(!client) {
+                showToast("Configure o Supabase primeiro.");
+                return;
+            }
+            if(!confirm("Baixar da nuvem vai substituir os dados locais desta máquina. Continuar?")) return;
+            try {
+                const { data, error } = await client.from('erp_state').select('data, updated_at').eq('id', cfg.baseId).maybeSingle();
+                if(error) throw error;
+                if(!data?.data) {
+                    showToast("Ainda não existe base salva na nuvem.");
+                    return;
+                }
+                appState = data.data;
+                normalizarConfiguracoes();
+                stateStorage.save(appState);
+                sincronizarTudo();
+                setSupabaseStatus(`Último download: ${new Date().toLocaleString()}`);
+                showToast("Dados baixados da nuvem!");
+            } catch(error) {
+                console.error(error);
+                setSupabaseStatus(`Erro ao baixar: ${error.message || 'não foi possível ler a nuvem.'}`);
+                showToast("Falha ao baixar do Supabase.");
+            }
+        }
+
+        async function baixarDadosSupabaseInicial() {
+            const client = getSupabaseClient();
+            const cfg = getSupabaseConfig();
+            if(!client || !cfg.url || !cfg.key) return;
+            try {
+                const { data, error } = await client.from('erp_state').select('data').eq('id', cfg.baseId).maybeSingle();
+                if(error || !data?.data) return;
+                appState = data.data;
+                normalizarConfiguracoes();
+                stateStorage.save(appState);
+            } catch(error) {
+                console.warn("Supabase inicial indisponível.", error);
+            }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const data = stateStorage.load();
+                if (data) {
+                    appState = data;
+                    if (appState.caixa === undefined) appState.caixa = 0.00;
+                    if (appState.lucroAcumulado === undefined) appState.lucroAcumulado = 0.00;
+                    if (!appState.materias) appState.materias = [];
+                    if (!appState.produtos) appState.produtos = [];
+                    if (!appState.pedidos) appState.pedidos = [];
+                    if (!appState.movimentacoes) appState.movimentacoes = [];
+                    if (!appState.clientesPastas) appState.clientesPastas = [];
+                    if (!appState.usuarios) appState.usuarios = [];
+                    normalizarConfiguracoes();
+                } else {
+                    injectDefaultData();
+                }
+            } catch(e) {
+                injectDefaultData();
+            }
+            sincronizarTudo();
+        }
+
+        function injectDefaultData() {
+            appState = {
+                caixa: 1500.00,
+                lucroAcumulado: 0.00,
+                materias: [
+                    {id: "m1", nome: "Papel Premium 300g", categoria: "Papel", valor: 45.00, estoque: 25},
+                    {id: "m2", nome: "Tinta Ouro Envelhecido", categoria: "Tintas", valor: 85.00, estoque: 12}
+                ],
+                produtos: [
+                    {id: "p1", nome: "Cartaz Blackwater Ornamental", categoria: "Impressos", rendimento: 5, lucroPerc: 180, estoque: 10, receita: [{materiaId: "m1", qtd: 1}, {materiaId: "m2", qtd: 0.5}]}
+                ],
+                pedidos: [],
+                movimentacoes: [
+                    {data: new Date().toLocaleString(), operacao: 'entrada', qtd: 1, nome: "Abertura de Sistema", valorTotalMov: 1500.00, motivo: "Saldo de herança inicial da Gráfica.", classe: 'Operacional'}
+                ],
+                configuracoes: getConfiguracoesPadrao(),
+                usuarios: [],
+                clientesPastas: [
+                    {
+                        local: "Gráfica de BW",
+                        membros: [
+                            { nome: "Aberama Gold", cargo: "Dono", contatos: ["Pombo 12", "Telegram"] }
+                        ]
+                    }
+                ]
+            };
+            saveToLocalStorage();
+        }
+
+        function sincronizarTudo() {
+            populateCompraMateriasSelect();
+            populateForjaProdutosSelect();
+            populatePedidosProdutosSelect();
+            populateAjusteBauProdutosSelect();
+            
+            renderDashboard();
+            renderPedidos();
+            renderMaterias();
+            renderProdutos();
+            renderMovimentacoesLogs();
+            renderBauEstoque();
+            renderClientesPastas();
+            renderConfiguracoes();
+            renderUsuariosSistema();
+            aplicarPermissoesInterface();
+            
+            checkPedidoInsumosPreview();
+            verificarInsumosForja();
+            atualizarPrecoCompraPreview();
+            desenharGraficoMini();
+            
+            if(typeof runExtensionSystemPipeline === 'function') {
+                runExtensionSystemPipeline();
+            }
+        }
+
+        function renderConfiguracoes() {
+            normalizarConfiguracoes();
+            const cfg = appState.configuracoes;
+            const empresa = document.getElementById('config-empresa-nome');
+            const subtitulo = document.getElementById('config-subtitulo-sistema');
+            const contato = document.getElementById('config-contato-padrao');
+            const estoque = document.getElementById('config-estoque-baixo');
+            const meta = document.getElementById('config-meta-reposicao');
+            const loginTitulo = document.getElementById('config-login-titulo');
+            const loginTexto = document.getElementById('config-login-texto');
+            const cor = document.getElementById('config-cor-destaque');
+            const compacto = document.getElementById('config-modo-compacto');
+            const reciboObs = document.getElementById('config-recibo-observacao');
+            const supabaseUrl = document.getElementById('config-supabase-url');
+            const supabaseKey = document.getElementById('config-supabase-key');
+            const supabaseBaseId = document.getElementById('config-supabase-base-id');
+            const supabaseAuto = document.getElementById('config-supabase-auto');
+            if(empresa) empresa.value = cfg.empresaNome || '';
+            if(subtitulo) subtitulo.value = cfg.subtituloSistema || '';
+            if(contato) contato.value = cfg.contatoPadrao || '';
+            if(estoque) estoque.value = cfg.estoqueBaixoPadrao;
+            if(meta) meta.value = cfg.metaReposicaoPadrao;
+            if(loginTitulo) loginTitulo.value = cfg.loginTitulo || '';
+            if(loginTexto) loginTexto.value = cfg.loginTexto || '';
+            if(cor) cor.value = cfg.corDestaque || 'gold';
+            if(compacto) compacto.value = cfg.modoCompacto || 'nao';
+            if(reciboObs) reciboObs.value = cfg.reciboObservacao || '';
+            if(supabaseUrl) supabaseUrl.value = cfg.supabaseUrl || SUPABASE_URL_PADRAO || '';
+            if(supabaseKey) supabaseKey.value = cfg.supabaseKey || SUPABASE_ANON_KEY_PADRAO || '';
+            if(supabaseBaseId) supabaseBaseId.value = cfg.supabaseBaseId || 'blackwater_main';
+            if(supabaseAuto) supabaseAuto.value = cfg.supabaseAutoSync || 'nao';
+            aplicarConfiguracoesVisuais();
+        }
+
+        function aplicarConfiguracoesVisuais() {
+            normalizarConfiguracoes();
+            const cfg = appState.configuracoes;
+            const brand = document.querySelector('.brand-header h1');
+            const subtitle = document.querySelector('.brand-header span');
+            if(brand) brand.innerText = (cfg.empresaNome || 'BLACKWATER').toUpperCase();
+            if(subtitle) subtitle.innerText = (cfg.subtituloSistema || 'G R Á F I C A').toUpperCase();
+            const paletas = {
+                gold: { primary: '#d9a431', bright: '#ffe7a1', gradient: 'linear-gradient(135deg, #fff1b8 0%, #e2ad3a 28%, #9c610e 58%, #f7d46f 100%)' },
+                ruby: { primary: '#c73232', bright: '#ffd1c8', gradient: 'linear-gradient(135deg, #ffd1c8 0%, #c73232 42%, #66100f 72%, #f0a36e 100%)' },
+                green: { primary: '#2ecc71', bright: '#cbffe0', gradient: 'linear-gradient(135deg, #e2ffcf 0%, #2ecc71 42%, #155d30 72%, #d9a431 100%)' },
+                blue: { primary: '#4aa3df', bright: '#d7efff', gradient: 'linear-gradient(135deg, #d7efff 0%, #4aa3df 42%, #123d66 72%, #d9a431 100%)' }
+            };
+            const paleta = paletas[cfg.corDestaque] || paletas.gold;
+            document.documentElement.style.setProperty('--gold-primary', paleta.primary);
+            document.documentElement.style.setProperty('--gold-bright', paleta.bright);
+            document.documentElement.style.setProperty('--gold-gradient', paleta.gradient);
+            document.body.classList.toggle('compact-mode', cfg.modoCompacto === 'sim');
+        }
+
+        function aplicarConfiguracoesPadraoPedido() {
+            normalizarConfiguracoes();
+            const contato = document.getElementById('ped-pombo');
+            if(contato && !contato.value && appState.configuracoes.contatoPadrao) {
+                contato.value = appState.configuracoes.contatoPadrao;
+            }
+        }
+
+        function salvarConfiguracoes(e) {
+            e.preventDefault();
+            if(!exigirAcao('configuracoes')) return;
+            appState.configuracoes = {
+                empresaNome: sanitizeText(document.getElementById('config-empresa-nome')?.value) || 'Gráfica de Blackwater',
+                subtituloSistema: sanitizeText(document.getElementById('config-subtitulo-sistema')?.value) || 'G R Á F I C A',
+                contatoPadrao: sanitizeText(document.getElementById('config-contato-padrao')?.value),
+                estoqueBaixoPadrao: Math.max(0, parseInt(document.getElementById('config-estoque-baixo')?.value) || 5),
+                metaReposicaoPadrao: Math.max(1, parseInt(document.getElementById('config-meta-reposicao')?.value) || 10),
+                loginTitulo: sanitizeText(document.getElementById('config-login-titulo')?.value) || 'Acesso Restrito',
+                loginTexto: sanitizeText(document.getElementById('config-login-texto')?.value) || 'Entre com o login e senha autorizados para acessar o sistema.',
+                corDestaque: document.getElementById('config-cor-destaque')?.value || 'gold',
+                modoCompacto: document.getElementById('config-modo-compacto')?.value || 'nao',
+                reciboObservacao: sanitizeText(document.getElementById('config-recibo-observacao')?.value),
+                supabaseUrl: sanitizeText(document.getElementById('config-supabase-url')?.value),
+                supabaseKey: sanitizeText(document.getElementById('config-supabase-key')?.value),
+                supabaseBaseId: sanitizeText(document.getElementById('config-supabase-base-id')?.value) || 'blackwater_main',
+                supabaseAutoSync: document.getElementById('config-supabase-auto')?.value || 'nao'
+            };
+            saveToLocalStorage();
+            configurarTelaAuth();
+            aplicarConfiguracoesVisuais();
+            showToast("Configurações salvas!");
+        }
+
+        function switchPage(pageId) {
+            if(authReady && !temPermissaoPagina(pageId)) {
+                showToast("Seu cargo não tem permissão para acessar esta área.");
+                return;
+            }
+            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            
+            const targetPage = document.getElementById(`page-${pageId}`);
+            if (targetPage) targetPage.classList.add('active');
+            if(pageId === 'pedidos') setTimeout(aplicarConfiguracoesPadraoPedido, 0);
+            
+            if (window.event && window.event.currentTarget && window.event.currentTarget.classList.contains('nav-link')) {
+                window.event.currentTarget.classList.add('active');
+            } else {
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    if(link.getAttribute('onclick').includes(pageId)) link.classList.add('active');
+                });
+            }
+            sincronizarTudo();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function saveClientePasta(e) {
+            e.preventDefault();
+            const localInput = sanitizeText(document.getElementById('cli-local').value);
+            const nomeInput = sanitizeText(document.getElementById('cli-nome').value);
+            const cargoInput = sanitizeText(document.getElementById('cli-cargo').value);
+            const contatosInput = document.getElementById('cli-contatos').value.split(',').map(sanitizeText).filter(c => c !== "");
+
+            if (!localInput || !nomeInput || contatosInput.length === 0) {
+                showToast("Preencha os dados do cliente corretamente.");
+                return;
+            }
+
+            let pastaObj = appState.clientesPastas.find(p => p.local.toLowerCase() === localInput.toLowerCase());
+
+            if(!pastaObj) {
+                pastaObj = { local: localInput, membros: [] };
+                appState.clientesPastas.push(pastaObj);
+            }
+
+            pastaObj.membros.push({
+                nome: nomeInput,
+                cargo: cargoInput,
+                contatos: contatosInput
+            });
+
+            saveToLocalStorage();
+            document.getElementById('cli-nome').value = "";
+            document.getElementById('cli-contatos').value = "";
+            showToast(`Membro alocado na pasta [${localInput}]!`);
+        }
+
+        function renderClientesPastas() {
+            const container = document.getElementById('clientes-pastas-list');
+            if(!container) return;
+            container.innerHTML = "";
+
+            if(!appState.clientesPastas || appState.clientesPastas.length === 0) {
+                container.innerHTML = `<div style="opacity:0.5; font-style:italic;">Nenhuma pasta organizacional estruturada.</div>`;
+                return;
+            }
+
+            let estatisticasLocal = {};
+            appState.movimentacoes.forEach(m => {
+                if(m.operacao === 'venda_pedido' && m.motivo.includes('-> Cliente:')) {
+                    let partes = m.motivo.split('-> Cliente:');
+                    if(partes[1]) {
+                        let clienteNome = partes[1].trim();
+                        appState.clientesPastas.forEach(p => {
+                            let pertence = p.membros.some(memb => memb.nome.toLowerCase() === clienteNome.toLowerCase());
+                            if(pertence) {
+                                if(!estatisticasLocal[p.local]) { estatisticasLocal[p.local] = { qtd: 0, valor: 0 }; }
+                                estatisticasLocal[p.local].qtd += m.qtd;
+                                estatisticasLocal[p.local].valor += m.valorTotalMov;
+                            }
+                        });
+                    }
+                }
+            });
+
+            const pastasHtml = appState.clientesPastas.map((p, idx) => {
+                let stats = estatisticasLocal[p.local] || { qtd: 0, valor: 0 };
+                
+                let membrosHtml = p.membros.map(m => `
+                    <div class="member-row">
+                        <div class="member-info-top">
+                            <span class="member-name">👤 ${m.nome}</span>
+                            <span class="badge ${m.cargo === 'Dono' ? 'badge-danger' : (m.cargo === 'Gerente' ? 'badge-blue' : 'badge-success')}">${m.cargo}</span>
+                        </div>
+                        <div class="member-contacts">📞 Contatos: ${m.contatos.join(' | ') || 'Nenhum listado'}</div>
+                    </div>
+                `).join('');
+
+                return `
+                    <div class="folder-card">
+                        <div class="folder-header">
+                            <h3>📁 ${p.local}</h3>
+                            <div class="folder-meta">
+                                <span>Volume: <b>${stats.qtd} un</b></span>
+                                <span style="color:var(--gold-bright);">Total: <b>R$ ${stats.valor.toFixed(2)}</b></span>
+                            </div>
+                            <button class="btn-action btn-delete" style="position:absolute; top:15px; right:10px; padding:3px 8px; font-size:0.6rem;" onclick="deletarPastaCliente(${idx})">Deletar</button>
+                        </div>
+                        <div class="folder-content-expand">
+                            <h5 style="color:var(--text-muted); font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:4px;">Membros da Organização</h5>
+                            ${membrosHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            container.innerHTML = pastasHtml;
+        }
+
+        function deletarPastaCliente(index) {
+            if(confirm("Deseja expurgar esta pasta organizacional e todos os seus membros vinculados?")) {
+                appState.clientesPastas.splice(index, 1);
+                saveToLocalStorage();
+                showToast("Pasta removida com sucesso.");
+            }
+        }
+
+        function getProdutoCustoCiclo(produto, materiasMap = null) {
+            let custoCiclo = 0;
+            if(!produto.receita) return 0;
+            produto.receita.forEach(r => {
+                const mat = materiasMap ? materiasMap.get(r.materiaId) : appState.materias.find(m => m.id === r.materiaId);
+                if(mat) custoCiclo += (mat.valor * r.qtd);
+            });
+            return custoCiclo;
+        }
+
+        function getProdutoPrecoVenda(produto, materiasMap = null) {
+            const custoCiclo = getProdutoCustoCiclo(produto, materiasMap);
+            const rendimento = produto.rendimento || 1;
+            const custoUnitario = custoCiclo / rendimento;
+            const lucroPerc = produto.lucroPerc || 100;
+            return custoUnitario * (1 + lucroPerc / 100);
+        }
+
+        function getProdutoCustoUnitario(produto, materiasMap = null) {
+            const custoCiclo = getProdutoCustoCiclo(produto, materiasMap);
+            return custoCiclo / (produto.rendimento || 1);
+        }
+
+        function populateForjaProdutosSelect() {
+            populateSelect('forja-produto-id', appState.produtos, p => `<option value="${p.id}">${p.nome}</option>`);
+        }
+
+        function verificarInsumosForja() {
+            const select = document.getElementById('forja-produto-id');
+            if(!select) return;
+            const prodId = select.value;
+            const qtdDesejada = Math.max(1, parseInt(document.getElementById('forja-ciclos').value) || 1);
+            const previewBox = document.getElementById('forja-preview-box');
+            const listContainer = document.getElementById('forja-insumos-lista');
+            const assistenteBox = document.getElementById('forja-assistente-compra');
+
+            if(!prodId || appState.produtos.length === 0) {
+                if(previewBox) previewBox.style.display = 'none';
+                return;
+            }
+
+            const produto = appState.produtos.find(p => p.id === prodId);
+            if(!produto) return;
+            const rendimento = produto.rendimento || 1;
+            const ciclosNecessarios = Math.ceil(qtdDesejada / rendimento);
+            const rendimentoTotal = rendimento * ciclosNecessarios;
+
+            if(previewBox) previewBox.style.display = 'block';
+            
+            let faltaFinanciera = 0;
+            let flagFalta = false;
+
+            if(listContainer) {
+                if(!produto.receita || produto.receita.length === 0) {
+                    listContainer.innerHTML = "<div class='insumo-item insumo-ok'>Fórmula livre de insumos! Pronto para criar.</div>";
+                    if(assistenteBox) assistenteBox.style.display = 'none';
+                    return;
+                }
+
+                const itensHtml = [];
+                produto.receita.forEach(req => {
+                    const mat = appState.materias.find(m => m.id === req.materiaId);
+                    const qtdNecessaria = req.qtd * ciclosNecessarios;
+
+                    if(!mat) {
+                        itensHtml.push(`<div class='insumo-item insumo-missing'>Matéria-prima ausente!</div>`);
+                        flagFalta = true;
+                    } else {
+                        if(mat.estoque >= qtdNecessaria) {
+                            itensHtml.push(`<div class='insumo-item insumo-ok'>✔️ ${mat.nome}: Disponível (${mat.estoque}/${qtdNecessaria} un)</div>`);
+                        } else {
+                            const faltante = qtdNecessaria - mat.estoque;
+                            faltaFinanciera += (faltante * mat.valor);
+                            itensHtml.push(`<div class='insumo-item insumo-missing'>❌ Falta Material - ${mat.nome}: ${mat.estoque}/${qtdNecessaria} un (Falta: ${faltante.toFixed(1)})</div>`);
+                            flagFalta = true;
+                        }
+                    }
+                });
+                itensHtml.push(`<div class='insumo-item insumo-ok' style='color:#5dade2; border-color:rgba(52,152,219,0.35);'>📦 Produção planejada: ${qtdDesejada} un desejadas -> ${ciclosNecessarios} ciclo(s), gerando ${rendimentoTotal} un.</div>`);
+                listContainer.innerHTML = itensHtml.join('');
+            }
+
+            if(flagFalta && faltaFinanciera > 0) {
+                if(assistenteBox) {
+                    assistenteBox.style.display = 'block';
+                    assistenteBox.innerHTML = `💡 <b>Assistente de Produção:</b> Você precisa de mais <b style='color:var(--gold-bright);'>R$ ${faltaFinanciera.toFixed(2)}</b> em insumos para liberar essa produção.`;
+                }
+            } else {
+                if(assistenteBox) assistenteBox.style.display = 'none';
+            }
+        }
+
+        function executarForja(e) {
+            e.preventDefault();
+            if(!exigirAcao('gerenciarEstoque')) return;
+            const prodId = document.getElementById('forja-produto-id').value;
+            const qtdDesejada = Math.max(1, parseInt(document.getElementById('forja-ciclos').value) || 1);
+            const produto = appState.produtos.find(p => p.id === prodId);
+
+            if(!produto) return;
+            const rendimento = produto.rendimento || 1;
+            const ciclosNecessarios = Math.ceil(qtdDesejada / rendimento);
+
+            if(produto.receita) {
+                for(let req of produto.receita) {
+                    const mat = appState.materias.find(m => m.id === req.materiaId);
+                    const totalExigido = req.qtd * ciclosNecessarios;
+                    if(!mat || mat.estoque < totalExigido) {
+                        showToast(`Produção cancelada! Faltam insumos.`);
+                        return;
+                    }
+                }
+                for(let req of produto.receita) {
+                    const mat = appState.materias.find(m => m.id === req.materiaId);
+                    if(mat) mat.estoque -= (req.qtd * ciclosNecessarios);
+                }
+            }
+
+            const rendimentoTotal = rendimento * ciclosNecessarios;
+            produto.estoque = (produto.estoque || 0) + rendimentoTotal;
+
+            registrarMovimentacao({
+                operacao: 'entrada',
+                qtd: rendimentoTotal,
+                nome: produto.nome,
+                valorTotalMov: 0,
+                motivo: `Produção Manual: ${qtdDesejada} un solicitadas, executou ${ciclosNecessarios} ciclo(s).`,
+                classe: 'Operacional'
+            });
+
+            saveToLocalStorage();
+            showToast(`🔥 Produção concluída! +${rendimentoTotal} un ao estoque.`);
+        }
+
+        function populatePedidosProdutosSelect() {
+            populateSelect('ped-produto-id', appState.produtos, p => `<option value="${p.id}">${p.nome}</option>`);
+        }
+
+        function getPedidoItens(pedido) {
+            const itensOrigem = Array.isArray(pedido.itens) && pedido.itens.length > 0
+                ? pedido.itens
+                : [{ produtoId: pedido.produtoId, produtoNome: pedido.produtoNome, qtd: pedido.qtd }];
+
+            return itensOrigem
+                .map(item => {
+                    const produto = appState.produtos.find(prod => prod.id === item.produtoId);
+                    return {
+                        produtoId: item.produtoId,
+                        produtoNome: item.produtoNome || produto?.nome || 'Produto removido',
+                        qtd: Math.max(1, parseInt(item.qtd) || 1)
+                    };
+                })
+                .filter(item => item.produtoId);
+        }
+
+        function getPedidoTotal(pedido) {
+            const produtosMap = mapById(appState.produtos);
+            const materiasMap = mapById(appState.materias);
+            return getPedidoItens(pedido).reduce((total, item) => {
+                const produto = produtosMap.get(item.produtoId);
+                return total + ((produto ? getProdutoPrecoVenda(produto, materiasMap) : 0) * item.qtd);
+            }, 0);
+        }
+
+        function getPedidoCustoTotal(pedido) {
+            const produtosMap = mapById(appState.produtos);
+            const materiasMap = mapById(appState.materias);
+            return getPedidoItens(pedido).reduce((total, item) => {
+                const produto = produtosMap.get(item.produtoId);
+                return total + ((produto ? getProdutoCustoUnitario(produto, materiasMap) : 0) * item.qtd);
+            }, 0);
+        }
+
+        function getPedidoResumoProdutos(pedido) {
+            return getPedidoItens(pedido).map(item => item.produtoNome).join(', ');
+        }
+
+        function getPedidoItensHtml(pedido) {
+            return getPedidoItens(pedido)
+                .map(item => `${item.produtoNome}<br><b style="color: var(--gold-bright);">${item.qtd} un</b>`)
+                .join('<hr style="border:0; border-top:1px solid rgba(255,255,255,0.08); margin:6px 0;">');
+        }
+
+        function getPedidoStatusInventario(pedido) {
+            const itens = getPedidoItens(pedido);
+            const estoqueNecessario = {};
+            const insumosNecessarios = {};
+
+            itens.forEach(item => {
+                const produto = appState.produtos.find(prod => prod.id === item.produtoId);
+                estoqueNecessario[item.produtoId] = (estoqueNecessario[item.produtoId] || 0) + item.qtd;
+                if(!produto) return;
+
+                if(produto.receita) {
+                    const rendimento = produto.rendimento || 1;
+                    const ciclos = Math.ceil(item.qtd / rendimento);
+                    produto.receita.forEach(req => {
+                        insumosNecessarios[req.materiaId] = (insumosNecessarios[req.materiaId] || 0) + (req.qtd * ciclos);
+                    });
+                }
+            });
+
+            const temProdutoPronto = itens.length > 0 && Object.entries(estoqueNecessario).every(([produtoId, qtd]) => {
+                const produto = appState.produtos.find(prod => prod.id === produtoId);
+                return produto && (produto.estoque || 0) >= qtd;
+            });
+
+            const temInsumosParaFabricar = itens.length > 0 && getPedidoItens(pedido).every(item => appState.produtos.some(prod => prod.id === item.produtoId))
+                && Object.entries(insumosNecessarios).every(([materiaId, qtd]) => {
+                    const mat = appState.materias.find(m => m.id === materiaId);
+                    return mat && mat.estoque >= qtd;
+                });
+
+            return { temProdutoPronto, temInsumosParaFabricar };
+        }
+
+        function renderPedidoItensTemp() {
+            const container = document.getElementById('pedido-itens-lista');
+            if(!container) return;
+
+            if(pedidoItensTemp.length === 0) {
+                container.style.display = 'none';
+                container.innerHTML = "";
+                renderPedidoResumo();
+                return;
+            }
+
+            container.style.display = 'block';
+            container.innerHTML = pedidoItensTemp.map((item, index) => `
+                <div class="insumo-item insumo-ok" style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                    <span>${item.produtoNome} - <b>${item.qtd} un</b></span>
+                    <button type="button" class="btn-action btn-delete" onclick="removerProdutoDoPedido(${index})">Remover</button>
+                </div>
+            `).join('');
+            renderPedidoResumo();
+        }
+
+        function getPedidoItensEmEdicao() {
+            if(pedidoItensTemp.length > 0) return pedidoItensTemp.map(item => ({ ...item }));
+
+            const prodId = document.getElementById('ped-produto-id')?.value;
+            const qtd = Math.max(1, parseInt(document.getElementById('ped-quantidade')?.value) || 1);
+            const produto = appState.produtos.find(p => p.id === prodId);
+            return produto ? [{ produtoId: prodId, produtoNome: produto.nome, qtd }] : [];
+        }
+
+        function renderPedidoResumo() {
+            const box = document.getElementById('pedido-resumo-box');
+            const lista = document.getElementById('pedido-resumo-lista');
+            const totalSpan = document.getElementById('pedido-resumo-total');
+            if(!box || !lista || !totalSpan) return;
+
+            const itens = getPedidoItensEmEdicao();
+            if(itens.length === 0) {
+                box.style.display = 'none';
+                lista.innerHTML = "";
+                totalSpan.innerText = "R$ 0,00";
+                return;
+            }
+
+            const produtosMap = mapById(appState.produtos);
+            const materiasMap = mapById(appState.materias);
+            let total = 0;
+            lista.innerHTML = itens.map(item => {
+                const produto = produtosMap.get(item.produtoId);
+                const precoUnit = produto ? getProdutoPrecoVenda(produto, materiasMap) : 0;
+                const subtotal = precoUnit * item.qtd;
+                total += subtotal;
+                return `${item.produtoNome}: <b style="color:var(--gold-bright);">${item.qtd} un</b> x R$ ${precoUnit.toFixed(2)} = <span style="color:#2ecc71;">R$ ${subtotal.toFixed(2)}</span>`;
+            }).join('<br>');
+
+            totalSpan.innerText = `R$ ${total.toFixed(2)}`;
+            box.style.display = 'block';
+        }
+
+        function adicionarProdutoAoPedido() {
+            const prodId = document.getElementById('ped-produto-id').value;
+            const qtd = Math.max(1, parseInt(document.getElementById('ped-quantidade').value) || 1);
+            const produto = appState.produtos.find(p => p.id === prodId);
+
+            if(!prodId || !produto) {
+                showToast("Cadastre um produto primeiro!");
+                return false;
+            }
+
+            const itemExistente = pedidoItensTemp.find(item => item.produtoId === prodId);
+            if(itemExistente) {
+                itemExistente.qtd += qtd;
+            } else {
+                pedidoItensTemp.push({ produtoId: prodId, produtoNome: produto.nome, qtd });
+            }
+
+            document.getElementById('ped-quantidade').value = 1;
+            renderPedidoItensTemp();
+            checkPedidoInsumosPreview();
+            showToast("Produto adicionado ao pedido!");
+            return true;
+        }
+
+        function removerProdutoDoPedido(index) {
+            pedidoItensTemp.splice(index, 1);
+            renderPedidoItensTemp();
+            checkPedidoInsumosPreview();
+        }
+
+        function checkPedidoInsumosPreview() {
+            const select = document.getElementById('ped-produto-id');
+            if(!select) return;
+            const prodId = select.value;
+            const qtdPedido = parseInt(document.getElementById('ped-quantidade').value) || 1;
+            const previewBox = document.getElementById('pedido-insumos-preview-box');
+            const listContainer = document.getElementById('pedido-insumos-lista');
+            renderPedidoResumo();
+
+            if(!prodId || appState.produtos.length === 0) {
+                if(previewBox) previewBox.style.display = 'none';
+                return;
+            }
+
+            const produto = appState.produtos.find(p => p.id === prodId);
+            if(!produto) return;
+
+            if(previewBox) previewBox.style.display = 'block';
+            if(listContainer) {
+                const itensHtml = [];
+
+                const estPronto = produto.estoque || 0;
+                if(estPronto >= qtdPedido) {
+                    itensHtml.push(`<div class='insumo-item insumo-ok' style='color:#5dade2;'>📦 DISPONÍVEL NO BAÚ: (${estPronto}/${qtdPedido} un prontas)</div>`);
+                } else {
+                    itensHtml.push(`<div class='insumo-item' style='color:#5dade2; border:1px dashed rgba(52,152,219,0.3);'>📦 Estoque insuficiente: ${estPronto}/${qtdPedido} un prontas.</div>`);
+                }
+
+                if(!produto.receita || produto.receita.length === 0) {
+                    listContainer.innerHTML = itensHtml.join('');
+                    return;
+                }
+
+                const rendimento = produto.rendimento || 1;
+                const ciclosNecessarios = Math.ceil(qtdPedido / rendimento);
+
+                produto.receita.forEach(req => {
+                    const mat = appState.materias.find(m => m.id === req.materiaId);
+                    const qtdTotalNecessaria = req.qtd * ciclosNecessarios;
+
+                    if(!mat) {
+                        itensHtml.push(`<div class='insumo-item insumo-missing'>Matéria em falta!</div>`);
+                    } else {
+                        const saldoFaltante = qtdTotalNecessaria - mat.estoque;
+                        if(saldoFaltante <= 0) {
+                            itensHtml.push(`<div class='insumo-item insumo-ok'>🌿 Insumo -> ${mat.nome} : OK (${mat.estoque}/${qtdTotalNecessaria} un)</div>`);
+                        } else {
+                            itensHtml.push(`<div class='insumo-item insumo-missing'>❌ Insumo -> ${mat.nome} : Falta ${saldoFaltante.toFixed(2)} un</div>`);
+                        }
+                    }
+                });
+                listContainer.innerHTML = itensHtml.join('');
+            }
+        }
+
+        function savePedido(e) {
+            e.preventDefault();
+            if(!currentUser) return;
+            const prodId = document.getElementById('ped-produto-id').value;
+            const qtd = Math.max(1, parseInt(document.getElementById('ped-quantidade').value) || 1);
+            const produto = appState.produtos.find(p => p.id === prodId);
+
+            const itensPedido = pedidoItensTemp.length > 0
+                ? pedidoItensTemp.map(item => ({ ...item }))
+                : (produto ? [{ produtoId: prodId, produtoNome: produto.nome, qtd }] : []);
+
+            if(itensPedido.length === 0) {
+                showToast("Cadastre um produto primeiro!");
+                return;
+            }
+
+            const cliente = sanitizeText(document.getElementById('ped-cliente').value);
+            const empresa = sanitizeText(document.getElementById('ped-empresa').value) || 'Não Informado';
+            const pombo = sanitizeText(document.getElementById('ped-pombo').value);
+
+            if (!cliente || !pombo) {
+                showToast("Informe cliente e contato do pedido.");
+                return;
+            }
+
+            const payloadPedido = {
+                cliente,
+                empresa,
+                pombo,
+                produtoId: itensPedido[0].produtoId,
+                produtoNome: itensPedido.map(item => item.produtoNome).join(', '),
+                qtd: itensPedido.reduce((total, item) => total + item.qtd, 0),
+                itens: itensPedido
+            };
+
+            const estavaEditandoPedido = Boolean(pedidoEditId);
+            if(pedidoEditId) {
+                const pedido = appState.pedidos.find(p => p.id === pedidoEditId);
+                if(!pedido) {
+                    showToast("Pedido não encontrado para edição.");
+                    cancelarEdicaoPedido();
+                    return;
+                }
+                Object.assign(pedido, payloadPedido);
+            } else {
+                appState.pedidos.push({
+                    id: 'ped_' + Date.now(),
+                    ...payloadPedido,
+                    status: 'Pendente',
+                    dataConclusao: null
+                });
+            }
+
+            saveToLocalStorage();
+            cancelarEdicaoPedido(false);
+            showToast(estavaEditandoPedido ? "Pedido atualizado com sucesso!" : "Pedido adicionado com sucesso!");
+        }
+
+        function editarPedido(id) {
+            const pedido = appState.pedidos.find(p => p.id === id);
+            if(!pedido) return;
+
+            pedidoEditId = id;
+            document.getElementById('ped-cliente').value = pedido.cliente || '';
+            document.getElementById('ped-empresa').value = pedido.empresa || '';
+            document.getElementById('ped-pombo').value = pedido.pombo || '';
+            pedidoItensTemp = getPedidoItens(pedido).map(item => ({ ...item }));
+            renderPedidoItensTemp();
+            checkPedidoInsumosPreview();
+
+            const title = document.getElementById('pedido-form-title');
+            const submit = document.getElementById('pedido-submit-btn');
+            const cancel = document.getElementById('pedido-cancel-edit-btn');
+            if(title) title.innerText = 'Editar Pedido';
+            if(submit) submit.innerText = 'Atualizar Pedido';
+            if(cancel) cancel.style.display = 'inline-flex';
+            switchPage('pedidos');
+        }
+
+        function cancelarEdicaoPedido(shouldRender = true) {
+            pedidoEditId = null;
+            document.getElementById('form-pedido')?.reset();
+            pedidoItensTemp = [];
+            renderPedidoItensTemp();
+            checkPedidoInsumosPreview();
+            aplicarConfiguracoesPadraoPedido();
+
+            const title = document.getElementById('pedido-form-title');
+            const submit = document.getElementById('pedido-submit-btn');
+            const cancel = document.getElementById('pedido-cancel-edit-btn');
+            if(title) title.innerText = 'Novo Pedido';
+            if(submit) submit.innerText = 'Salvar Pedido';
+            if(cancel) cancel.style.display = 'none';
+            if(shouldRender) renderPedidos();
+        }
+
+        function duplicarPedidoExpress(id) {
+            if(!currentUser) return;
+            const pedBase = appState.pedidos.find(p => p.id === id);
+            if(!pedBase) return;
+            appState.pedidos.push({
+                ...pedBase,
+                id: 'ped_' + Date.now(),
+                status: 'Pendente',
+                dataConclusao: null
+            });
+            saveToLocalStorage();
+            showToast("Pedido duplicado com sucesso!");
+        }
+
+        function padRecibo(value, size, alignRight = false) {
+            const text = String(value ?? "");
+            if(text.length >= size) return text.slice(0, size);
+            return alignRight ? text.padStart(size, " ") : text.padEnd(size, " ");
+        }
+
+        function gerarReciboPedidoTexto(p) {
+            const empresaNome = getEmpresaNome();
+            const statusEntregue = p.status === 'Entregue';
+            const tipoDocumento = statusEntregue ? "RECIBO DE COMPRA" : "ORCAMENTO / CONTRATO PENDENTE";
+            const numeroPedido = String(p.id || "").replace("ped_", "") || "S/N";
+            const dataDocumento = statusEntregue ? (p.dataConclusao || new Date().toLocaleString()) : new Date().toLocaleString();
+            const separador = "==================================================";
+            const linha = "--------------------------------------------------";
+            const materiasMap = mapById(appState.materias);
+            const produtosMap = mapById(appState.produtos);
+            let total = 0;
+
+            const linhasItens = getPedidoItens(p).map((item, index) => {
+                const prod = produtosMap.get(item.produtoId);
+                const precoUnit = prod ? getProdutoPrecoVenda(prod, materiasMap) : 0;
+                const subtotal = precoUnit * item.qtd;
+                total += subtotal;
+                return [
+                    `${String(index + 1).padStart(2, "0")}. ${item.produtoNome}`,
+                    `    Qtd: ${padRecibo(item.qtd + " un", 8)} Unit: ${padRecibo("R$ " + precoUnit.toFixed(2), 12, true)} Subtotal: ${padRecibo("R$ " + subtotal.toFixed(2), 12, true)}`
+                ].join("\n");
+            }).join("\n");
+
+            const statusLinha = statusEntregue
+                ? "STATUS: ENTREGUE / FINALIZADO"
+                : "STATUS: PENDENTE / AGUARDANDO RESOLUCAO";
+
+            const fechamento = statusEntregue
+                ? "Obrigado pela preferencia. Pedido registrado como entregue."
+                : "Este documento representa um orcamento pendente de confirmacao/entrega.";
+            const observacaoPadrao = appState.configuracoes?.reciboObservacao
+                ? `\n${appState.configuracoes.reciboObservacao}`
+                : "";
+
+            return `${separador}
+${tipoDocumento}
+${empresaNome.toUpperCase()}
+${separador}
+PEDIDO: #${numeroPedido}
+DATA: ${dataDocumento}
+${statusLinha}
+
+DADOS DO CLIENTE
+${linha}
+Cliente: ${p.cliente}
+Empresa/Local: ${p.empresa || 'Nao informado'}
+Contato: ${p.pombo}
+
+ITENS DO PEDIDO
+${linha}
+${linhasItens || 'Nenhum item listado.'}
+
+TOTAIS
+${linha}
+TOTAL DO PEDIDO: R$ ${total.toFixed(2)}
+${statusEntregue ? "VALOR TOTAL PAGO: R$ " + total.toFixed(2) : "TOTAL DO CONTRATO: R$ " + total.toFixed(2)}
+
+OBSERVACOES
+${linha}
+${fechamento}
+${observacaoPadrao}
+${separador}`;
+        }
+
+        function copiarReciboTexto(id) {
+            const p = appState.pedidos.find(ped => ped.id === id);
+            if(!p) return;
+            const textoRecibo = gerarReciboPedidoTexto(p);
+            
+            navigator.clipboard.writeText(textoRecibo).then(() => {
+                showToast(p.status === 'Entregue' ? "📜 Recibo completo copiado!" : "📜 Orçamento completo copiado!");
+            });
+        }
+
+        function renderPedidos() {
+            const tbody = document.getElementById('table-pedidos-body');
+            if(!tbody) return; tbody.innerHTML = "";
+
+            const filtro = document.getElementById('filter-pedidos')?.value.toLowerCase() || "";
+            const pedidosPendentes = appState.pedidos.filter(p => (p.status || 'Pendente') === 'Pendente');
+
+            const linhasHtml = [];
+            pedidosPendentes.forEach(p => {
+                const itens = getPedidoItens(p);
+                const resumoProdutos = itens.map(item => item.produtoNome).join(', ');
+                if (filtro && !p.cliente.toLowerCase().includes(filtro) && !resumoProdutos.toLowerCase().includes(filtro)) return; 
+
+                const { temProdutoPronto, temInsumosParaFabricar } = getPedidoStatusInventario(p);
+
+                let statusProntoHtml = temProdutoPronto ? '<span class="badge badge-success">📦 Tem Pronto</span>' : '<span class="badge badge-danger">📦 Sem Estoque</span>';
+                let statusInsumosHtml = temInsumosParaFabricar ? '<span class="badge badge-blue">🌿 Insumos OK</span>' : '<span class="badge badge-danger">❌ Sem Insumos</span>';
+
+                let acoesHtml = "";
+                if(temPermissaoAcao('entregarPedido')) {
+                    if(temProdutoPronto) acoesHtml += `<button class="btn-action btn-blue-action" onclick="venderUsandoBau('${p.id}')">📦 Usar Estoque</button>`;
+                    if(temInsumosParaFabricar) acoesHtml += `<button class="btn-action btn-success-action" onclick="venderFabricandoNaHora('${p.id}')">🔥 Produzir</button>`;
+                    if(!temProdutoPronto && !temInsumosParaFabricar) acoesHtml += `<span style="color:#e74c3c; font-size:0.75rem;">⚠️ Indisponível</span>`;
+                } else {
+                    acoesHtml += `<span style="color:var(--text-muted); font-size:0.75rem;">Aguardando gerente/dono</span>`;
+                }
+                const botaoDeletarPedido = temPermissaoAcao('entregarPedido')
+                    ? `<button class="btn-action btn-delete" onclick="deletePedido('${p.id}')">Deletar</button>`
+                    : '';
+
+                linhasHtml.push(`
+                    <tr>
+                        <td><b>${p.cliente}</b><br><small style="opacity:0.6">${p.empresa}</small></td>
+                        <td>🕊️ ${p.pombo}</td>
+                        <td>${itens.map(item => item.produtoNome).join('<br>')}</td>
+                        <td>${itens.map(item => `<b>${item.qtd}x</b>`).join('<br>')}</td>
+                        <td>${statusProntoHtml}<br>${statusInsumosHtml}</td>
+                        <td>
+                            <div style="display:flex; gap:4px; flex-wrap:wrap;">
+                                ${acoesHtml}
+                                <button class="btn-action btn-blue-action" onclick="editarPedido('${p.id}')">Editar</button>
+                                <button class="btn-action btn-blue-action" style="background:#8c6a24;" onclick="copiarReciboTexto('${p.id}')">📋 Recibo</button>
+                                <button class="btn-action btn-success-action" style="background:#2980b9;" onclick="duplicarPedidoExpress('${p.id}')">📑 Copiar</button>
+                                ${botaoDeletarPedido}
+                            </div>
+                        </td>
+                    </tr>
+                `);
+            });
+            tbody.innerHTML = linhasHtml.join('') || "<tr><td colspan='6' style='text-align:center; opacity:0.5;'>Nenhum pedido pendente.</td></tr>";
+        }
+
+        function concluirVendaPedido(pedido, itens, totalFaturado, lucroVenda, motivoMovimentacao, toastMessage) {
+            appState.caixa += totalFaturado;
+            appState.lucroAcumulado += lucroVenda;
+
+            registrarMovimentacao({
+                operacao: 'venda_pedido',
+                qtd: itens.reduce((total, item) => total + item.qtd, 0),
+                nome: itens.map(item => item.produtoNome).join(', '),
+                valorTotalMov: totalFaturado,
+                motivo: motivoMovimentacao,
+                classe: 'Operacional'
+            });
+
+            pedido.status = 'Entregue';
+            pedido.dataConclusao = new Date().toLocaleString();
+
+            saveToLocalStorage();
+            showToast(toastMessage);
+        }
+
+        function venderUsandoBau(id) {
+            if(!exigirAcao('entregarPedido', "Somente Dono ou Gerente podem efetuar a entrega.")) return;
+            const pedido = appState.pedidos.find(p => p.id === id);
+            if(!pedido) return;
+
+            const { temProdutoPronto } = getPedidoStatusInventario(pedido);
+            if(!temProdutoPronto) return;
+
+            const itens = getPedidoItens(pedido);
+            const produtosMap = mapById(appState.produtos);
+            itens.forEach(item => {
+                const produto = produtosMap.get(item.produtoId);
+                if(produto) produto.estoque -= item.qtd;
+            });
+
+            const totalFaturado = getPedidoTotal(pedido);
+            const lucroVenda = totalFaturado - getPedidoCustoTotal(pedido);
+            concluirVendaPedido(pedido, itens, totalFaturado, lucroVenda, `Venda via Estoque Pronto -> Cliente: ${pedido.cliente}`, `🎉 Vendido via estoque e registrado como entregue! +R$ ${totalFaturado.toFixed(2)}`);
+        }
+
+        function venderFabricandoNaHora(id) {
+            if(!exigirAcao('entregarPedido', "Somente Dono ou Gerente podem produzir e entregar pedidos.")) return;
+            const pedido = appState.pedidos.find(p => p.id === id);
+            if(!pedido) return;
+
+            const { temInsumosParaFabricar } = getPedidoStatusInventario(pedido);
+            if(!temInsumosParaFabricar) return;
+
+            const itens = getPedidoItens(pedido);
+            const produtosMap = mapById(appState.produtos);
+            const materiasMap = mapById(appState.materias);
+            itens.forEach(item => {
+                const produto = produtosMap.get(item.produtoId);
+                if(!produto || !produto.receita) return;
+                const rendimento = produto.rendimento || 1;
+                const ciclos = Math.ceil(item.qtd / rendimento);
+
+                for(let req of produto.receita) {
+                    const mat = materiasMap.get(req.materiaId);
+                    if(mat) mat.estoque -= (req.qtd * ciclos);
+                }
+            });
+
+            const totalFaturado = getPedidoTotal(pedido);
+            const lucroVenda = totalFaturado - getPedidoCustoTotal(pedido);
+            concluirVendaPedido(pedido, itens, totalFaturado, lucroVenda, `Vendido Produzindo na Hora -> Cliente: ${pedido.cliente}`, `🔥 Produzido, vendido e registrado como entregue! Caixa: +R$ ${totalFaturado.toFixed(2)}`);
+        }
+
+        function deletePedido(id) {
+            if(!exigirAcao('entregarPedido', "Somente Dono ou Gerente podem remover pedidos.")) return;
+            if(confirm("Remover permanentemente o pedido da base de dados?")) {
+                appState.pedidos = appState.pedidos.filter(p => p.id !== id);
+                if(pedidoEditId === id) cancelarEdicaoPedido(false);
+                saveToLocalStorage();
+                showToast("Pedido removido.");
+            }
+        }
+
+        function populateCompraMateriasSelect() {
+            renderCompraInsumosLista();
+            populateSelect('compra-materia-id', appState.materias, m => `<option value="${m.id}">${m.nome} (R$ ${m.valor.toFixed(2)}/un)</option>`);
+        }
+
+        function getCompraInsumosCarrinho() {
+            syncCompraQuantidadesTemp();
+            return appState.materias.map(m => {
+                const qtd = Math.max(0, parseInt(compraInsumosQtdTemp[m.id]) || 0);
+                return { materia: m, qtd, subtotal: m.valor * qtd };
+            }).filter(item => item.qtd > 0);
+        }
+
+        function syncCompraQuantidadesTemp() {
+            document.querySelectorAll('[data-compra-materia-id]').forEach(input => {
+                compraInsumosQtdTemp[input.dataset.compraMateriaId] = Math.max(0, parseInt(input.value) || 0);
+            });
+        }
+
+        function renderCompraInsumosLista() {
+            const tbody = document.getElementById('table-compra-insumos-body');
+            if(!tbody) return;
+            const filtro = document.getElementById('filter-compra-insumos')?.value.toLowerCase() || "";
+            syncCompraQuantidadesTemp();
+
+            if(appState.materias.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; opacity:0.5;'>Nenhuma matéria-prima cadastrada.</td></tr>";
+                atualizarPrecoCompraPreview();
+                return;
+            }
+
+            tbody.innerHTML = appState.materias.map(m => {
+                const textoBusca = `${m.nome} ${m.categoria || ''}`.toLowerCase();
+                if(filtro && !textoBusca.includes(filtro)) return "";
+                const valorAtual = compraInsumosQtdTemp[m.id] || 0;
+                return `
+                    <tr>
+                        <td><b>${m.nome}</b></td>
+                        <td>${m.categoria || 'Geral'}</td>
+                        <td>R$ ${m.valor.toFixed(2)}</td>
+                        <td>${m.estoque} un</td>
+                        <td><input type="number" min="0" id="compra-qtd-${m.id}" data-compra-materia-id="${m.id}" class="form-control compra-qtd-insumo" value="${valorAtual}" style="width:110px; padding:8px;"></td>
+                    </tr>
+                `;
+            }).join('') || "<tr><td colspan='5' style='text-align:center; opacity:0.5;'>Nenhum insumo encontrado.</td></tr>";
+
+            atualizarPrecoCompraPreview();
+        }
+
+        function limparCarrinhoCompraInsumos() {
+            compraInsumosQtdTemp = {};
+            document.querySelectorAll('.compra-qtd-insumo').forEach(input => input.value = 0);
+            atualizarPrecoCompraPreview();
+        }
+
+        function atualizarPrecoCompraPreview() {
+            const container = document.getElementById('compra-custo-valor');
+            const validacao = document.getElementById('compra-validacao-caixa');
+            const carrinhoLista = document.getElementById('compra-carrinho-lista');
+            const itensCarrinho = getCompraInsumosCarrinho();
+            const total = itensCarrinho.reduce((acc, item) => acc + item.subtotal, 0);
+            if(!container) return;
+
+            container.innerText = `R$ ${total.toFixed(2)}`;
+
+            if(carrinhoLista) {
+                carrinhoLista.innerHTML = itensCarrinho.length === 0
+                    ? "Nenhum insumo selecionado."
+                    : itensCarrinho.map(item => `${item.materia.nome}: <b style="color:var(--gold-bright);">${item.qtd} un</b> <span style="color:#2ecc71;">(R$ ${item.subtotal.toFixed(2)})</span>`).join('<br>');
+            }
+
+            if(itensCarrinho.length === 0) {
+                container.innerText = "R$ 0,00";
+                if(validacao) validacao.innerText = "";
+            } else if (appState.caixa < total) {
+                if(validacao) { validacao.innerText = "⚠️ Saldo Insuficiente"; validacao.style.color = "#ff6b6b"; }
+            } else {
+                if(validacao) { validacao.innerText = "✅ Saldo Disponível"; validacao.style.color = "#2ecc71"; }
+            }
+        }
+
+        function executarCompraInsumo(e) {
+            e.preventDefault();
+            if(!exigirAcao('gerenciarEstoque')) return;
+            const itensCarrinho = getCompraInsumosCarrinho();
+            const custoTotal = itensCarrinho.reduce((acc, item) => acc + item.subtotal, 0);
+
+            if(itensCarrinho.length === 0) {
+                showToast("Escolha a quantidade de pelo menos um insumo.");
+                return;
+            }
+
+            if(appState.caixa < custoTotal) {
+                showToast(`Compra Recusada! Saldo Insuficiente.`);
+                return;
+            }
+
+            appState.caixa -= custoTotal;
+            itensCarrinho.forEach(item => {
+                item.materia.estoque += item.qtd;
+            });
+
+            registrarMovimentacao({
+                operacao: 'saida',
+                qtd: itensCarrinho.reduce((acc, item) => acc + item.qtd, 0),
+                nome: `Compra: ${itensCarrinho.map(item => `${item.materia.nome} (${item.qtd} un)`).join(', ')}`,
+                valorTotalMov: custoTotal,
+                motivo: `Abastecimento de insumos pelo Mercado.`,
+                classe: 'Operacional'
+            });
+
+            limparCarrinhoCompraInsumos();
+            saveToLocalStorage();
+            
+            showToast(`🛒 Compra concluída! R$ ${custoTotal.toFixed(2)} descontados.`);
+        }
+
+        function populateAjusteBauProdutosSelect() {
+            populateSelect('ajuste-bau-prod-id', appState.produtos, p => `<option value="${p.id}">${p.nome}</option>`);
+        }
+
+        function renderBauEstoque() {
+            const tbody = document.getElementById('table-bau-estoque-body');
+            if(!tbody) return; tbody.innerHTML = "";
+            if(appState.produtos.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; opacity:0.5;'>Nenhum produto cadastrado.</td></tr>";
+                return;
+            }
+            const materiasMap = mapById(appState.materias);
+            tbody.innerHTML = appState.produtos.map(p => {
+                const estoqueAtual = p.estoque || 0;
+                let statusHtml = estoqueAtual > 5 ? '<span class="badge badge-success">Abastecido</span>' : (estoqueAtual > 0 ? '<span class="badge badge-blue">Crítico</span>' : '<span class="badge badge-danger">Vazio</span>');
+                return `<tr><td><b>${p.nome}</b></td><td>${p.categoria || 'Geral'}</td><td>R$ ${getProdutoPrecoVenda(p, materiasMap).toFixed(2)}</td><td><b>${estoqueAtual}</b> un</td><td>${statusHtml}</td></tr>`;
+            }).join('');
+        }
+
+        function executarAjusteBau(e) {
+            e.preventDefault();
+            if(!exigirAcao('gerenciarEstoque')) return;
+            const prodId = document.getElementById('ajuste-bau-prod-id').value;
+            const tipo = document.getElementById('ajuste-bau-tipo').value;
+            const qtd = Math.max(0, parseInt(document.getElementById('ajuste-bau-qtd').value) || 0);
+            const produto = appState.produtos.find(p => p.id === prodId);
+
+            if(!produto || qtd <= 0) return;
+
+            if(tipo === 'adicionar') {
+                produto.estoque = (produto.estoque || 0) + qtd;
+                registrarMovimentacao({ operacao: 'entrada', qtd: qtd, nome: produto.nome, valorTotalMov: 0, motivo: `Ajuste manual de entrada no estoque.`, classe: 'Operacional' });
+                showToast(`Estoque atualizado! +${qtd} un.`);
+            } else if(tipo === 'remover') {
+                if((produto.estoque || 0) < qtd) { showToast(`Quantidade indisponível!`); return; }
+                produto.estoque -= qtd;
+                registrarMovimentacao({ operacao: 'saida', qtd: qtd, nome: produto.nome, valorTotalMov: 0, motivo: `Ajuste manual de remoção do estoque.`, classe: 'Operacional' });
+                showToast(`Estoque reduzido! -${qtd} un.`);
+            } else {
+                if((produto.estoque || 0) < qtd) { showToast(`Quantidade indisponível para perda!`); return; }
+                produto.estoque -= qtd;
+                const custoPerda = getProdutoCustoUnitario(produto) * qtd;
+                registrarMovimentacao({ operacao: 'saida', qtd: qtd, nome: `Desperdício: ${produto.nome}`, valorTotalMov: custoPerda, motivo: `Quebra ou refugo operacional na linha de montagem.`, classe: 'Operacional' });
+                showToast(`Perda registrada! -${qtd} un em estoque.`);
+            }
+            
+            document.getElementById('form-ajuste-bau').reset();
+            
+            saveToLocalStorage();
+        }
+
+        function registrarMovimentacaoManual(e) {
+            e.preventDefault();
+            if(!exigirAcao('financeiro')) return;
+            const tipo = document.getElementById('mov-manual-tipo').value;
+            const categoria = sanitizeText(document.getElementById('mov-manual-categoria').value);
+            const motivo = sanitizeText(document.getElementById('mov-manual-motivo').value);
+            const valor = Math.max(0, safeNumber(document.getElementById('mov-manual-valor').value));
+
+            if(valor <= 0 || !motivo) {
+                showToast("Informe motivo e valor válido.");
+                return;
+            }
+
+            if(tipo === 'entrada_direta') {
+                appState.caixa += valor;
+                registrarMovimentacao({ operacao: 'entrada', qtd: 1, nome: "Ajuste manual Entrada", valorTotalMov: valor, motivo: motivo, classe: categoria });
+            } else {
+                appState.caixa -= valor;
+                registrarMovimentacao({ operacao: 'saida', qtd: 1, nome: "Ajuste manual Saída", valorTotalMov: valor, motivo: motivo, classe: categoria });
+            }
+            document.getElementById('form-movimentacao-manual').reset();
+            saveToLocalStorage();
+            showToast("Transação registrada com sucesso!");
+        }
+
+        function renderDashboard() {
+            normalizarConfiguracoes();
+            const estoqueBaixoPadrao = appState.configuracoes.estoqueBaixoPadrao;
+            const metaReposicaoPadrao = appState.configuracoes.metaReposicaoPadrao;
+            if(document.getElementById('dash-patrimonio')) document.getElementById('dash-patrimonio').innerText = `R$ ${appState.caixa.toFixed(2)}`;
+            if(document.getElementById('dash-lucro-acumulado')) document.getElementById('dash-lucro-acumulado').innerText = `R$ ${appState.lucroAcumulado.toFixed(2)}`;
+            
+            let ativosPendentes = appState.pedidos.filter(p => (p.status || 'Pendente') === 'Pendente');
+            if(document.getElementById('dash-qtd-pedidos')) document.getElementById('dash-qtd-pedidos').innerText = ativosPendentes.length;
+            if(document.getElementById('rep-total-caixa')) document.getElementById('rep-total-caixa').innerText = `R$ ${appState.caixa.toFixed(2)}`;
+            if(document.getElementById('rep-lucro-estimado')) document.getElementById('rep-lucro-estimado').innerText = `R$ ${appState.lucroAcumulado.toFixed(2)}`;
+
+            let somaDemanda = ativosPendentes.reduce((acc, p) => acc + getPedidoItens(p).reduce((total, item) => total + item.qtd, 0), 0);
+            if(document.getElementById('dash-previsao-demanda')) document.getElementById('dash-previsao-demanda').innerText = `${somaDemanda} un`;
+
+            const bajoHtml = appState.materias
+                .filter(m => m.estoque <= estoqueBaixoPadrao)
+                .map(m => `<tr><td>${m.nome}</td><td>Insumo</td><td>${m.estoque} un</td><td><span class="badge badge-danger">BAIXO</span></td></tr>`)
+                .join('');
+            if(document.getElementById('dash-estoque-baixo')) document.getElementById('dash-estoque-baixo').innerHTML = bajoHtml || "<tr><td colspan='4'>Todos os baús abastecidos!</td></tr>";
+
+            const materiasCompraHtml = appState.materias
+                .map(m => {
+                    const estoqueAtual = safeNumber(m.estoque);
+                    if(estoqueAtual > estoqueBaixoPadrao) return "";
+                    const qtdComprar = Math.max(1, Math.ceil(metaReposicaoPadrao - estoqueAtual));
+                    return `<tr><td>${m.nome}</td><td>${m.categoria || 'Sem categoria'}</td><td>${estoqueAtual} un</td><td><span class="badge badge-blue">${qtdComprar} un</span></td></tr>`;
+                })
+                .join('');
+            if(document.getElementById('dash-materias-compra-baixo')) document.getElementById('dash-materias-compra-baixo').innerHTML = materiasCompraHtml || "<tr><td colspan='4'>Nenhuma matéria-prima precisa de compra.</td></tr>";
+
+            const registroPedidosBody = document.getElementById('dash-registro-pedidos-body');
+            if (registroPedidosBody) {
+                registroPedidosBody.innerHTML = "";
+                if (appState.pedidos.length === 0) {
+                    registroPedidosBody.innerHTML = "<tr><td colspan='5' style='text-align:center; opacity:0.5; padding: 20px;'>Nenhum contrato no registro histórico.</td></tr>";
+                } else {
+                    registroPedidosBody.innerHTML = appState.pedidos.map(p => {
+                        const valorTotalVenda = getPedidoTotal(p);
+                        const statusAtual = p.status || 'Pendente';
+
+                        let badgeStatus = statusAtual === 'Entregue' 
+                            ? '<span class="badge badge-success">✅ Entregue</span>' 
+                            : '<span class="badge badge-danger">⏳ Pendente</span>';
+
+                        let btnStyle = statusAtual === 'Entregue'
+                            ? 'background: rgba(46, 204, 113, 0.2); border: 1px solid #2ecc71; color: #2ecc71;'
+                            : '';
+
+                        return `
+                            <tr>
+                                <td><b>${p.cliente}</b><br><small style="color: var(--text-muted); font-style: italic;">🏢 ${p.empresa}</small></td>
+                                <td>🕊️ ${p.pombo}</td>
+                                <td>${getPedidoItensHtml(p)}</td>
+                                <td style="color: #2ecc71; font-weight: bold; font-family: 'Times New Roman', serif; font-size: 1.05rem;">R$ ${valorTotalVenda.toFixed(2)}</td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        ${badgeStatus}
+                                        <button class="btn-gold" style="padding: 6px 12px; font-size: 0.7rem; border-radius: 4px; ${btnStyle}" onclick="copiarReciboTexto('${p.id}')">
+                                            📜 ${statusAtual === 'Entregue' ? 'Recibo Entregue' : 'Recibo Pendente'}
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+            }
+        }
+
+        function desenharGraficoMini() {
+            const canvas = document.getElementById('miniAnalyticChart');
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const ratio = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            const width = Math.max(320, rect.width || canvas.clientWidth || 600);
+            const height = 240;
+            canvas.width = Math.floor(width * ratio);
+            canvas.height = Math.floor(height * ratio);
+            canvas.style.height = `${height}px`;
+            ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            let vendas = appState.movimentacoes
+                .filter(m => m.valorTotalMov > 0)
+                .slice(0, 7)
+                .map(m => ({
+                    valor: Number(m.valorTotalMov) || 0,
+                    label: String(m.data || '').split(',')[0] || 'Mov.'
+                }))
+                .reverse();
+
+            if(vendas.length === 0) {
+                vendas = [
+                    { valor: 10, label: 'Base' },
+                    { valor: 50, label: 'Base' },
+                    { valor: 20, label: 'Base' },
+                    { valor: 90, label: 'Base' },
+                    { valor: 40, label: 'Base' },
+                    { valor: 120, label: 'Base' }
+                ];
+            }
+
+            const padding = { top: 28, right: 28, bottom: 46, left: 72 };
+            const chartW = width - padding.left - padding.right;
+            const chartH = height - padding.top - padding.bottom;
+            const valores = vendas.map(item => item.valor);
+            const maxVal = Math.max(...valores, 100);
+            const escalaMax = Math.ceil(maxVal / 50) * 50;
+            const stepX = vendas.length > 1 ? chartW / (vendas.length - 1) : chartW;
+
+            const getX = (index) => padding.left + (vendas.length > 1 ? index * stepX : chartW / 2);
+            const getY = (valor) => padding.top + chartH - ((valor / escalaMax) * chartH);
+
+            ctx.font = "12px Georgia";
+            ctx.textBaseline = "middle";
+
+            ctx.strokeStyle = 'rgba(217, 164, 49, 0.16)';
+            ctx.lineWidth = 1;
+            ctx.fillStyle = '#b99b61';
+            for(let i = 0; i <= 4; i++) {
+                const valor = (escalaMax / 4) * i;
+                const y = getY(valor);
+                ctx.beginPath();
+                ctx.moveTo(padding.left, y);
+                ctx.lineTo(width - padding.right, y);
+                ctx.stroke();
+                ctx.textAlign = "right";
+                ctx.fillText(`R$ ${valor.toFixed(0)}`, padding.left - 10, y);
+            }
+
+            ctx.strokeStyle = 'rgba(255, 231, 161, 0.38)';
+            ctx.beginPath();
+            ctx.moveTo(padding.left, padding.top);
+            ctx.lineTo(padding.left, padding.top + chartH);
+            ctx.lineTo(width - padding.right, padding.top + chartH);
+            ctx.stroke();
+
+            const pontos = vendas.map((item, index) => ({ x: getX(index), y: getY(item.valor), ...item }));
+
+            const areaGradient = ctx.createLinearGradient(0, padding.top, 0, padding.top + chartH);
+            areaGradient.addColorStop(0, 'rgba(217, 164, 49, 0.26)');
+            areaGradient.addColorStop(1, 'rgba(143, 20, 18, 0.03)');
+            ctx.beginPath();
+            pontos.forEach((ponto, index) => {
+                if(index === 0) ctx.moveTo(ponto.x, ponto.y);
+                else ctx.lineTo(ponto.x, ponto.y);
+            });
+            ctx.lineTo(pontos[pontos.length - 1].x, padding.top + chartH);
+            ctx.lineTo(pontos[0].x, padding.top + chartH);
+            ctx.closePath();
+            ctx.fillStyle = areaGradient;
+            ctx.fill();
+
+            ctx.strokeStyle = '#ffe7a1';
+            ctx.lineWidth = 3;
+            ctx.shadowColor = 'rgba(255, 231, 161, 0.32)';
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            pontos.forEach((ponto, index) => {
+                if(index === 0) ctx.moveTo(ponto.x, ponto.y);
+                else ctx.lineTo(ponto.x, ponto.y);
+            });
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            pontos.forEach((ponto, index) => {
+                ctx.fillStyle = '#070301';
+                ctx.strokeStyle = '#ffe7a1';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(ponto.x, ponto.y, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffe7a1';
+                ctx.textAlign = "center";
+                ctx.textBaseline = "bottom";
+                ctx.fillText(`R$ ${ponto.valor.toFixed(0)}`, ponto.x, ponto.y - 10);
+
+                ctx.fillStyle = '#b99b61';
+                ctx.textBaseline = "top";
+                const label = vendas.length > 5 && index % 2 !== 0 ? '' : ponto.label;
+                ctx.fillText(label, ponto.x, padding.top + chartH + 12);
+            });
+
+            ctx.fillStyle = '#ffe7a1';
+            ctx.textAlign = "left";
+            ctx.textBaseline = "top";
+            ctx.font = "bold 13px Georgia";
+            ctx.fillText("Últimas movimentações com valor", padding.left, 8);
+        }
+
+        function renderMaterias() {
+            const tbody = document.getElementById('table-materias-body');
+            if(!tbody) return; tbody.innerHTML = "";
+            const filtro = document.getElementById('filter-materias')?.value.toLowerCase() || "";
+            tbody.innerHTML = appState.materias.map(m => {
+                if (filtro && !m.categoria.toLowerCase().includes(filtro)) return "";
+                return `
+                    <tr>
+                        <td><b>${m.nome}</b></td>
+                        <td>${m.categoria}</td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                <span>R$</span>
+                                <input type="number" min="0" step="0.01" id="mat-valor-edit-${m.id}" class="form-control" value="${m.valor}" style="width:110px; padding:8px;">
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                <input type="number" min="0" id="mat-estoque-edit-${m.id}" class="form-control" value="${m.estoque}" style="width:95px; padding:8px;">
+                                <span>un</span>
+                            </div>
+                        </td>
+                        <td>
+                            <button class="btn-action btn-blue-action" onclick="editarMateria('${m.id}')">Editar</button>
+                            <button class="btn-action btn-success-action" onclick="editarMateriaRapida('${m.id}')">Salvar</button>
+                            <button class="btn-action btn-delete" onclick="deleteMateria('${m.id}')">Remover</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('') || "<tr><td colspan='5' style='text-align:center; opacity:0.5;'>Nenhuma matéria-prima encontrada.</td></tr>";
+        }
+
+        function editarEstoqueMateria(id) {
+            editarMateriaRapida(id);
+        }
+
+        function editarMateriaRapida(id) {
+            if(!exigirAcao('gerenciarEstoque')) return;
+            const materia = appState.materias.find(m => m.id === id);
+            const inputEstoque = document.getElementById(`mat-estoque-edit-${id}`);
+            const inputValor = document.getElementById(`mat-valor-edit-${id}`);
+            if(!materia || !inputEstoque || !inputValor) return;
+
+            const novoEstoque = Math.max(0, parseInt(inputEstoque.value) || 0);
+            const novoValor = Math.max(0, safeNumber(inputValor.value));
+            materia.estoque = novoEstoque;
+            materia.valor = novoValor;
+            saveToLocalStorage();
+            showToast("Matéria-prima atualizada!");
+        }
+
+        function saveMateria(e) {
+            e.preventDefault();
+            if(!exigirAcao('gerenciarEstoque')) return;
+            const nome = sanitizeText(document.getElementById('mat-nome').value);
+            const categoria = sanitizeText(document.getElementById('mat-categoria').value) || "Geral";
+            const valor = Math.max(0, safeNumber(document.getElementById('mat-valor').value));
+            const estoque = Math.max(0, parseInt(document.getElementById('mat-estoque').value) || 0);
+
+            if (!nome || valor < 0) {
+                showToast("Informe nome e valor válido para o insumo.");
+                return;
+            }
+
+            const estavaEditandoMateria = Boolean(materiaEditId);
+            if(materiaEditId) {
+                const materia = appState.materias.find(m => m.id === materiaEditId);
+                if(!materia) {
+                    showToast("Matéria-prima não encontrada para edição.");
+                    cancelarEdicaoMateria();
+                    return;
+                }
+                Object.assign(materia, { nome, categoria, valor, estoque });
+            } else {
+                appState.materias.push({
+                    id: 'mat_' + Date.now(),
+                    nome,
+                    categoria,
+                    valor,
+                    estoque
+                });
+            }
+            saveToLocalStorage();
+            cancelarEdicaoMateria(false);
+            showToast(estavaEditandoMateria ? "Matéria-prima atualizada!" : "Material consagrado!");
+        }
+
+        function editarMateria(id) {
+            if(!exigirAcao('gerenciarEstoque')) return;
+            const materia = appState.materias.find(m => m.id === id);
+            if(!materia) return;
+
+            materiaEditId = id;
+            document.getElementById('mat-nome').value = materia.nome || '';
+            document.getElementById('mat-categoria').value = materia.categoria || '';
+            document.getElementById('mat-valor').value = materia.valor || 0;
+            document.getElementById('mat-estoque').value = materia.estoque || 0;
+
+            const title = document.getElementById('materia-form-title');
+            const submit = document.getElementById('materia-submit-btn');
+            const cancel = document.getElementById('materia-cancel-edit-btn');
+            if(title) title.innerText = 'Editar Matéria-Prima';
+            if(submit) submit.innerText = 'Atualizar Matéria-Prima';
+            if(cancel) cancel.style.display = 'inline-flex';
+            switchPage('materias');
+        }
+
+        function cancelarEdicaoMateria(shouldRender = true) {
+            materiaEditId = null;
+            document.getElementById('form-materia')?.reset();
+            const title = document.getElementById('materia-form-title');
+            const submit = document.getElementById('materia-submit-btn');
+            const cancel = document.getElementById('materia-cancel-edit-btn');
+            if(title) title.innerText = 'Cadastrar Matéria-Prima';
+            if(submit) submit.innerText = 'Salvar Matéria-Prima';
+            if(cancel) cancel.style.display = 'none';
+            if(shouldRender) renderMaterias();
+        }
+
+        function deleteMateria(id) {
+            if(!exigirAcao('gerenciarEstoque')) return;
+            if(confirm("Excluir este insumo?")) {
+                appState.materias = appState.materias.filter(m => m.id !== id);
+                if(materiaEditId === id) cancelarEdicaoMateria(false);
+                saveToLocalStorage();
+                showToast("Insumo deletado.");
+            }
+        }
+
+        function addIngredientRow(materiaId = '', qtd = 1) {
+            const container = document.getElementById('recipe-ingredients-container');
+            if(!container) return;
+            const rowId = `recipe-row-${recipeRowsCount++}`;
+            let options = appState.materias.map(m => `<option value="${m.id}" ${m.id === materiaId ? 'selected' : ''}>${m.nome}</option>`).join('');
+            
+            container.insertAdjacentHTML('beforeend', `
+                <div class="recipe-row" id="${rowId}">
+                    <select class="form-control ingredient-select" onchange="calculateRecipeCost()" style="flex:2;" required>${options}</select>
+                    <input type="number" step="0.01" class="form-control ingredient-qtd" value="${qtd}" oninput="calculateRecipeCost()" style="flex:1;" required>
+                    <button type="button" class="btn-delete btn-action" onclick="document.getElementById('${rowId}').remove(); calculateRecipeCost();">X</button>
+                </div>
+            `);
+            calculateRecipeCost();
+        }
+
+        function calculateRecipeCost() {
+            let total = 0;
+            document.querySelectorAll('.recipe-row').forEach(r => {
+                const s = r.querySelector('.ingredient-select');
+                const q = r.querySelector('.ingredient-qtd');
+                if(s && q){
+                    const m = appState.materias.find(mat => mat.id === s.value);
+                    if(m) total += (m.valor * (parseFloat(q.value) || 0));
+                }
+            });
+            const rend = parseInt(document.getElementById('prod-rendimento')?.value) || 1;
+            const lucro = parseFloat(document.getElementById('prod-lucro-perc')?.value) || 0;
+            
+            if(document.getElementById('prod-custo-preview')) document.getElementById('prod-custo-preview').innerText = `R$ ${total.toFixed(2)}`;
+            if(document.getElementById('prod-custoun-preview')) document.getElementById('prod-custoun-preview').innerText = `R$ ${(total/rend).toFixed(2)}`;
+            if(document.getElementById('prod-venda-preview')) document.getElementById('prod-venda-preview').innerText = `R$ ${((total/rend) * (1 + lucro/100)).toFixed(2)}`;
+        }
+
+        function renderProdutos() {
+            const tbody = document.getElementById('table-produtos-body');
+            if(!tbody) return; tbody.innerHTML = "";
+            const materiasMap = mapById(appState.materias);
+            tbody.innerHTML = appState.produtos.map(p => `<tr><td><b>${p.nome}</b></td><td>${p.categoria}</td><td>${p.rendimento}x</td><td>R$ ${getProdutoCustoUnitario(p, materiasMap).toFixed(2)}</td><td>R$ ${getProdutoPrecoVenda(p, materiasMap).toFixed(2)}</td><td><b>${p.estoque || 0} un</b></td><td><button class="btn-action btn-blue-action" onclick="editarProduto('${p.id}')">Editar</button><button class="btn-action btn-delete" onclick="deleteProduto('${p.id}')">Deletar</button></td></tr>`).join('') || "<tr><td colspan='7' style='text-align:center; opacity:0.5;'>Nenhum produto cadastrado.</td></tr>";
+        }
+
+        function saveProduto(e) {
+            e.preventDefault();
+            if(!exigirAcao('gerenciarProdutos')) return;
+            const receita = [];
+            document.querySelectorAll('.recipe-row').forEach(r => {
+                const s = r.querySelector('.ingredient-select');
+                const q = r.querySelector('.ingredient-qtd');
+                const quantidade = Math.max(0, safeNumber(q?.value));
+                if(s && q && s.value && quantidade > 0) receita.push({materiaId: s.value, qtd: quantidade});
+            });
+
+            const nome = sanitizeText(document.getElementById('prod-nome').value);
+            const categoria = sanitizeText(document.getElementById('prod-categoria').value) || "Geral";
+            const rendimento = Math.max(1, parseInt(document.getElementById('prod-rendimento').value) || 1);
+            const lucroPerc = Math.max(0, safeNumber(document.getElementById('prod-lucro-perc').value));
+
+            if (!nome || receita.length === 0) {
+                showToast("Cadastre nome e ao menos um insumo na receita.");
+                return;
+            }
+
+            const estavaEditandoProduto = Boolean(produtoEditId);
+            if(produtoEditId) {
+                const produto = appState.produtos.find(p => p.id === produtoEditId);
+                if(!produto) {
+                    showToast("Produto não encontrado para edição.");
+                    cancelarEdicaoProduto();
+                    return;
+                }
+                Object.assign(produto, { nome, categoria, rendimento, lucroPerc, receita });
+            } else {
+                appState.produtos.push({
+                    id: 'prod_' + Date.now(),
+                    nome,
+                    categoria,
+                    rendimento,
+                    lucroPerc,
+                    estoque: 0,
+                    receita
+                });
+            }
+            saveToLocalStorage();
+            cancelarEdicaoProduto(false);
+            showToast(estavaEditandoProduto ? "Produto atualizado!" : "Nova fórmula adicionada!");
+        }
+
+        function editarProduto(id) {
+            if(!exigirAcao('gerenciarProdutos')) return;
+            const produto = appState.produtos.find(p => p.id === id);
+            if(!produto) return;
+
+            produtoEditId = id;
+            document.getElementById('prod-nome').value = produto.nome || '';
+            document.getElementById('prod-categoria').value = produto.categoria || '';
+            document.getElementById('prod-rendimento').value = produto.rendimento || 1;
+            document.getElementById('prod-lucro-perc').value = produto.lucroPerc ?? 100;
+
+            const container = document.getElementById('recipe-ingredients-container');
+            if(container) container.innerHTML = "";
+            (produto.receita || []).forEach(item => addIngredientRow(item.materiaId, item.qtd));
+            calculateRecipeCost();
+
+            const title = document.getElementById('produto-form-title');
+            const submit = document.getElementById('produto-submit-btn');
+            const cancel = document.getElementById('produto-cancel-edit-btn');
+            if(title) title.innerText = 'Editar Produto';
+            if(submit) submit.innerText = 'Atualizar Produto';
+            if(cancel) cancel.style.display = 'inline-flex';
+            switchPage('produtos');
+        }
+
+        function cancelarEdicaoProduto(shouldRender = true) {
+            produtoEditId = null;
+            document.getElementById('form-produto')?.reset();
+            const container = document.getElementById('recipe-ingredients-container');
+            if(container) container.innerHTML = "";
+            calculateRecipeCost();
+
+            const title = document.getElementById('produto-form-title');
+            const submit = document.getElementById('produto-submit-btn');
+            const cancel = document.getElementById('produto-cancel-edit-btn');
+            if(title) title.innerText = 'Cadastrar Produto';
+            if(submit) submit.innerText = 'Salvar Produto';
+            if(cancel) cancel.style.display = 'none';
+            if(shouldRender) renderProdutos();
+        }
+
+        function deleteProduto(id) {
+            if(!exigirAcao('gerenciarProdutos')) return;
+            if(confirm("Apagar produto?")) {
+                appState.produtos = appState.produtos.filter(p => p.id !== id);
+                if(produtoEditId === id) cancelarEdicaoProduto(false);
+                saveToLocalStorage();
+                showToast("Fórmula removida.");
+            }
+        }
+
+        function renderMovimentacoesLogs() {
+            const logCompacto = document.getElementById('movimentacoes-log');
+            const logCompleto = document.getElementById('movimentacoes-log-completo');
+            const htmlContent = appState.movimentacoes.length === 0
+                ? `<div class="history-item" style="opacity:0.5;">Nenhuma movimentação.</div>`
+                : appState.movimentacoes.map(l => {
+                const tagClasse = l.classe ? `<b style="color:var(--gold-bright);">[${l.classe}]</b> ` : "";
+                if(l.operacao === 'saida' && l.nome.startsWith('Compra:')) {
+                    return `<div class="history-item">[${l.data}] ${tagClasse}<span style="color:#2ecc71; font-weight:bold;">+ ${l.qtd} un</span> - <b>${l.nome}</b> | <span style="color:#e74c3c; font-weight:bold;"> -R$ ${l.valorTotalMov.toFixed(2)}</span> | <small>${l.motivo}</small></div>`;
+                } else {
+                    const sinal = (l.operacao === 'entrada' || l.operacao === 'venda_pedido') ? '+' : '-';
+                    const cor = (l.operacao === 'entrada' || l.operacao === 'venda_pedido') ? '#2ecc71' : '#e74c3c';
+                    const fin = l.valorTotalMov ? ` | <span style="color:${cor}; font-weight:bold;"> ${sinal}R$ ${l.valorTotalMov.toFixed(2)}</span>` : "";
+                    return `<div class="history-item">[${l.data}] ${tagClasse}<span style="color:${cor}; font-weight:bold;">${sinal} ${l.qtd} un</span> - <b>${l.nome}</b>${fin} | <small>${l.motivo}</small></div>`;
+                }
+            }).join('');
+
+            if(logCompacto) logCompacto.innerHTML = htmlContent;
+            if(logCompleto) logCompleto.innerHTML = htmlContent;
+        }
+
+        function exportarJSON() {
+            if(!exigirAcao('backup')) return;
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
+            const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "Blackwater_ERP_Ultra.json"); dl.click();
+        }
+
+        function resetarSistema() {
+            if(!exigirAcao('resetar')) return;
+            if (confirm("Tem certeza que deseja apagar TODOS os dados do sistema? Esta ação é irreversível.")) {
+                const validacao = prompt("Para confirmar a exclusão de todas as informações, digite DELETAR:");
+                if (validacao === "DELETAR") {
+                    stateStorage.clear();
+                    appState = {
+                        caixa: 0.00,
+                        lucroAcumulado: 0.00,
+                        materias: [],
+                        produtos: [],
+                        pedidos: [],
+                        movimentacoes: [],
+                        clientesPastas: [],
+                        usuarios: [],
+                        configuracoes: getConfiguracoesPadrao()
+                    };
+                    saveToLocalStorage();
+                    logoutUsuario();
+                    showToast("Base de dados totalmente resetada!");
+                } else {
+                    showToast("Ação cancelada.");
+                }
+            }
+        }
+
+        function runExtensionSystemPipeline() {
+            const formCompra = document.getElementById('form-comprar-insumo');
+            if(formCompra) {
+                const btnSub = document.getElementById('btn-confirmar-compra-insumos');
+                const itensCarrinho = getCompraInsumosCarrinho();
+                const total = itensCarrinho.reduce((acc, item) => acc + item.subtotal, 0);
+                if(btnSub) {
+                    if(itensCarrinho.length === 0) {
+                        btnSub.disabled = true; btnSub.style.opacity = "0.4"; btnSub.style.cursor = "not-allowed"; btnSub.innerText = "🛒 Confirmar Compra";
+                    } else if(appState.caixa < total) {
+                        btnSub.disabled = true; btnSub.style.opacity = "0.4"; btnSub.style.cursor = "not-allowed"; btnSub.innerText = "❌ Sem Saldo";
+                    } else {
+                        btnSub.disabled = false; btnSub.style.opacity = "1"; btnSub.style.cursor = "pointer"; btnSub.innerText = "🛒 Confirmar Compra";
+                    }
+                }
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            document.body.addEventListener('change', (e) => {
+                if(e.target.id === 'compra-materia-id' || e.target.id === 'compra-materia-qtd' || e.target.classList.contains('compra-qtd-insumo')) {
+                    atualizarPrecoCompraPreview();
+                    runExtensionSystemPipeline();
+                }
+            });
+            document.body.addEventListener('input', (e) => {
+                if(e.target.id === 'compra-materia-qtd' || e.target.classList.contains('compra-qtd-insumo')) {
+                    atualizarPrecoCompraPreview();
+                    runExtensionSystemPipeline();
+                }
+            });
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', () => setTimeout(sincronizarTudo, 50));
+            });
+        });
+
+        window.addEventListener('resize', () => {
+            clearTimeout(window.__blackwaterChartResize);
+            window.__blackwaterChartResize = setTimeout(desenharGraficoMini, 120);
+        });
+    </script>
+</body>
+</html>
