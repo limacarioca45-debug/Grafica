@@ -436,6 +436,7 @@
         .notification-item-content { display:grid; grid-template-columns:42px minmax(0,1fr); gap:10px; align-items:center; }
         .notification-avatar { width:42px; height:58px; object-fit:cover; object-position:center top; filter:drop-shadow(0 5px 5px rgba(0,0,0,.7)); }
         .notification-item.danger { border-left-color:#d9534f; }
+        .notification-item.warning { border-left-color:#d9a431; }
         .notification-item.success { border-left-color:#2ecc71; }
         .order-timeline { display:grid; gap:9px; }
         .timeline-entry { padding:11px 13px; border-left:3px solid rgba(217,164,49,.55); background:rgba(0,0,0,.25); }
@@ -445,6 +446,19 @@
         .permission-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; }
         .permission-card { padding:14px; border:1px solid rgba(217,164,49,.22); background:rgba(0,0,0,.22); }
         .permission-card label { display:flex; gap:8px; align-items:center; margin:8px 0; color:var(--text-light); text-transform:none; letter-spacing:0; }
+        .feature-control-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(235px,1fr)); gap:12px; margin-top:18px; }
+        .feature-group-title { grid-column:1/-1; margin-top:8px; padding:9px 11px; border-bottom:1px solid rgba(217,164,49,.3); color:var(--gold-bright); font-size:.72rem; font-weight:700; letter-spacing:1.3px; text-transform:uppercase; }
+        .feature-control { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:12px; padding:15px; border:1px solid rgba(217,164,49,.24); background:rgba(0,0,0,.24); }
+        .feature-control b { display:block; color:var(--gold-bright); font-size:.8rem; text-transform:uppercase; letter-spacing:.8px; }
+        .feature-control small { display:block; margin-top:5px; color:var(--text-muted); line-height:1.4; }
+        .feature-switch { position:relative; width:48px; height:26px; flex:0 0 48px; }
+        .feature-switch input { position:absolute; opacity:0; pointer-events:none; }
+        .feature-switch span { position:absolute; inset:0; border:1px solid rgba(217,164,49,.35); border-radius:14px; background:#240b08; cursor:pointer; transition:.2s ease; }
+        .feature-switch span::after { content:''; position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:#a33; transition:.2s ease; }
+        .feature-switch input:checked + span { background:rgba(46,204,113,.22); border-color:#2ecc71; }
+        .feature-switch input:checked + span::after { left:25px; background:#2ecc71; }
+        body.function-fidelidade-disabled .loyalty-panel,
+        body.function-fidelidade-disabled .coupon-order-box { display:none !important; }
         .test-result { padding:10px 12px; margin:7px 0; border-left:3px solid #2ecc71; background:rgba(46,204,113,.07); }
         .test-result.fail { border-left-color:#e74c3c; background:rgba(231,76,60,.08); }
         .payment-summary { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
@@ -981,8 +995,8 @@
             <h1>BLACKWATER</h1>
             <span>G R Á F I C A</span>
         </div>
-        <button type="button" id="interactive-toggle" class="interactive-toggle" onclick="togglePersonagensInterativos()" title="Ativar ou desativar personagens">♟</button>
-        <button type="button" id="notification-button" class="notification-button" onclick="toggleNotificacoes()" title="Notificações">
+        <button type="button" id="interactive-toggle" class="interactive-toggle" data-funcao-sistema="personagens" onclick="togglePersonagensInterativos()" title="Ativar ou desativar personagens">♟</button>
+        <button type="button" id="notification-button" class="notification-button" data-funcao-sistema="notificacoes" onclick="toggleNotificacoes()" title="Notificações">
             !
             <span id="notification-count" class="notification-count">0</span>
         </button>
@@ -1036,6 +1050,7 @@
             <div class="sidebar-submenu">
                 <button type="button" class="sidebar-link" onclick="navegarMenu('materias', this)">Matérias-Primas</button>
                 <button type="button" class="sidebar-link" onclick="navegarMenu('comprar-insumos', this)">Comprar Insumos</button>
+                <button type="button" class="sidebar-link" onclick="navegarMenu('fornecedores', this)">Fornecedores</button>
                 <button type="button" class="sidebar-link" onclick="navegarMenu('produtos', this)">Produtos e Receitas</button>
                 <button type="button" class="sidebar-link" onclick="navegarMenu('forja', this)">Produção de Itens</button>
                 <button type="button" class="sidebar-link" onclick="navegarMenu('bau-itens', this)">Estoque Pronto</button>
@@ -1045,7 +1060,6 @@
         <button type="button" class="sidebar-link" data-page-link="movimentacoes-page" onclick="navegarMenu('movimentacoes-page', this)">
             <span class="sidebar-icon">$</span><span class="sidebar-label">Financeiro</span>
         </button>
-
         <div class="sidebar-section-label">Conta e Sistema</div>
         <button type="button" class="sidebar-link" data-page-link="perfil" onclick="navegarMenu('perfil', this)">
             <span class="sidebar-icon">●</span><span class="sidebar-label">Meu Perfil</span>
@@ -1073,21 +1087,21 @@
                 <button type="button" class="btn-gold" onclick="switchPage('forja')">Produzir Itens</button>
                 <button type="button" class="btn-gold" onclick="switchPage('bau-itens')">Ver Estoque</button>
             </div>
-            <div class="gold-box">
+            <div class="gold-box" data-funcao-sistema="buscaGlobal">
                 <div class="gold-box-title">Busca Global</div>
                 <input type="text" id="global-search-input" class="form-control" placeholder="Buscar pedido, cliente, produto ou matéria-prima..." oninput="renderBuscaGlobal()">
                 <div id="global-search-results" style="margin-top:16px;"></div>
             </div>
-            <div class="gold-box">
+            <div class="gold-box" data-funcao-sistema="kanbanPedidos">
                 <div class="gold-box-title">Kanban de Pedidos</div>
                 <div class="kanban-grid" id="dashboard-kanban-pedidos"></div>
             </div>
-            <div class="gold-box chart-box-container">
+            <div class="gold-box chart-box-container" data-funcao-sistema="graficoComercial">
                 <div class="gold-box-title">Gráfico de Performance Comercial (Fluxo Dinâmico)</div>
                 <canvas id="miniAnalyticChart"></canvas>
             </div>
 
-            <div class="info-grid">
+            <div class="info-grid" data-funcao-sistema="alertasEstoque">
                 <div class="gold-box dashboard-alert-box" style="margin-bottom: 0;">
                     <div class="gold-box-title">Alerta de Estoque Baixo (Insumos)</div>
                     <div class="table-responsive dashboard-alert-table"><table class="gold-table"><thead><tr><th>Item</th><th>Estoque</th><th>Mínimo</th><th>Status</th></tr></thead><tbody id="dash-estoque-baixo"></tbody></table></div>
@@ -1097,9 +1111,15 @@
                     <div class="table-responsive dashboard-alert-table"><table class="gold-table"><thead><tr><th>Matéria-Prima</th><th>Estoque</th><th>Comprar</th><th>Custo Est.</th></tr></thead><tbody id="dash-materias-compra-baixo"></tbody></table></div>
                 </div>
             </div>
+            <div class="info-grid-full" data-funcao-sistema="alertasValidade">
+                <div class="gold-box dashboard-alert-box">
+                    <div class="gold-box-title">Controle de Validade do Estoque</div>
+                    <div class="table-responsive dashboard-alert-table"><table class="gold-table"><thead><tr><th>Tipo</th><th>Item</th><th>Validade</th><th>Tempo Restante</th><th>Situação</th></tr></thead><tbody id="dash-validade-alertas"></tbody></table></div>
+                </div>
+            </div>
 
             <!-- REGISTRO COMPLETO DE PEDIDOS NO DASHBOARD COM HISTÓRICO SALVO -->
-            <div class="info-grid-full">
+            <div class="info-grid-full" data-funcao-sistema="historicoDashboard">
                 <div class="gold-box">
                     <div class="gold-box-title">📋 Registro de Pedidos Ativos & Histórico de Vendas</div>
                     <div class="table-responsive">
@@ -1228,9 +1248,10 @@
             <div class="module-nav">
                 <button type="button" onclick="irParaModulo('sec-materias')"><span class="module-nav-icon">1</span><span class="module-nav-copy"><strong>Matérias</strong><small>Cadastro e mínimos</small></span></button>
                 <button type="button" onclick="irParaModulo('sec-comprar-insumos')"><span class="module-nav-icon">2</span><span class="module-nav-copy"><strong>Comprar</strong><small>Carrinho de insumos</small></span></button>
-                <button type="button" onclick="irParaModulo('sec-produtos')"><span class="module-nav-icon">3</span><span class="module-nav-copy"><strong>Produtos</strong><small>Receitas e preços</small></span></button>
-                <button type="button" onclick="irParaModulo('sec-forja')"><span class="module-nav-icon">4</span><span class="module-nav-copy"><strong>Produção</strong><small>Fabricar itens</small></span></button>
-                <button type="button" onclick="irParaModulo('sec-bau-itens')"><span class="module-nav-icon">5</span><span class="module-nav-copy"><strong>Estoque</strong><small>Produtos prontos</small></span></button>
+                <button type="button" onclick="irParaModulo('sec-fornecedores')"><span class="module-nav-icon">3</span><span class="module-nav-copy"><strong>Fornecedores</strong><small>Contatos e itens</small></span></button>
+                <button type="button" onclick="irParaModulo('sec-produtos')"><span class="module-nav-icon">4</span><span class="module-nav-copy"><strong>Produtos</strong><small>Receitas e preços</small></span></button>
+                <button type="button" onclick="irParaModulo('sec-forja')"><span class="module-nav-icon">5</span><span class="module-nav-copy"><strong>Produção</strong><small>Fabricar itens</small></span></button>
+                <button type="button" onclick="irParaModulo('sec-bau-itens')"><span class="module-nav-icon">6</span><span class="module-nav-copy"><strong>Estoque</strong><small>Produtos prontos</small></span></button>
             </div>
             <div class="dashboard-grid">
                 <div class="card-taro"><h3>Matérias Baixas</h3><div class="value" id="prod-materias-baixas">0</div></div>
@@ -1247,7 +1268,8 @@
                         <div class="form-group"><label>Categoria</label><input type="text" id="mat-categoria" class="form-control" placeholder="Tintas, Papel..."></div>
                         <div class="form-group"><label>Preço Unitário (R$)</label><input type="number" step="0.01" id="mat-valor" class="form-control" required></div>
                         <div class="form-group"><label>Quantidade em Estoque</label><input type="number" id="mat-estoque" class="form-control" required value="0"></div>
-                <div class="form-group"><label>Estoque Mínimo</label><input type="number" id="mat-estoque-minimo" class="form-control" min="0" value="5"></div>
+                        <div class="form-group"><label>Estoque Mínimo</label><input type="number" id="mat-estoque-minimo" class="form-control" min="0" value="5"></div>
+                        <div class="form-group"><label>Validade após entrada (dias)</label><input type="number" id="mat-validade-dias" class="form-control" min="0" value="0" title="Use 0 para deixar sem controle de validade"></div>
                         <div class="form-group"><label>Fornecedor Padrão</label><select id="mat-fornecedor-id" class="form-control"><option value="">Sem fornecedor</option></select></div>
                     </div>
                     <div style="display:flex; gap:10px; flex-wrap:wrap;">
@@ -1258,7 +1280,7 @@
             </div>
             <div class="gold-box">
                 <div class="gold-box-title">Matérias-Primas Cadastradas</div>
-                <div class="table-responsive"><table class="gold-table"><thead><tr><th>Nome</th><th>Categoria</th><th>Preço Unit.</th><th>Estoque</th><th>Mínimo</th><th>Ações</th></tr></thead><tbody id="table-materias-body"></tbody></table></div>
+                <div class="table-responsive"><table class="gold-table"><thead><tr><th>Nome</th><th>Categoria</th><th>Preço Unit.</th><th>Estoque</th><th>Mínimo</th><th>Validade</th><th>Ações</th></tr></thead><tbody id="table-materias-body"></tbody></table></div>
             </div>
             <div class="module-divider"></div>
             <div class="module-heading" id="sec-comprar-insumos">Comprar Insumos</div>
@@ -1317,6 +1339,7 @@
                         <div class="form-group"><label>Categoria</label><input type="text" id="prod-categoria" class="form-control" placeholder="Impressos..."></div>
                         <div class="form-group"><label>Rendimento por Produção</label><input type="number" id="prod-rendimento" class="form-control" value="1" min="1" oninput="calculateRecipeCost()" required></div>
                         <div class="form-group"><label>Margem de Lucro (%)</label><input type="number" step="0.1" id="prod-lucro-perc" class="form-control" value="100" oninput="calculateRecipeCost()" required></div>
+                        <div class="form-group"><label>Validade após produção (dias)</label><input type="number" id="prod-validade-dias" class="form-control" min="0" value="0" title="Use 0 para deixar sem controle de validade"></div>
                     </div>
                     <div class="recipe-builder">
                         <label style="font-weight:bold; color:var(--gold-bright); display:block; margin-bottom:12px;">Matérias-Primas da Receita</label>
@@ -1336,7 +1359,7 @@
             </div>
             <div class="gold-box">
                 <div class="gold-box-title">Catálogo de Produtos</div>
-                <div class="table-responsive"><table class="gold-table"><thead><tr><th>Produto</th><th>Categoria</th><th>Rendimento</th><th>Custo Unit.</th><th>Preço Venda</th><th>Estoque</th><th>Ações</th></tr></thead><tbody id="table-produtos-body"></tbody></table></div>
+                <div class="table-responsive"><table class="gold-table"><thead><tr><th>Produto</th><th>Categoria</th><th>Rendimento</th><th>Custo Unit.</th><th>Preço Venda</th><th>Estoque</th><th>Validade</th><th>Ações</th></tr></thead><tbody id="table-produtos-body"></tbody></table></div>
             </div>
             <div class="module-divider"></div>
             <div class="module-heading" id="sec-forja">Produção de Itens</div>
@@ -1377,7 +1400,7 @@
             </div>
             <div class="gold-box">
                 <div class="gold-box-title">Produtos em Estoque</div>
-                <div class="table-responsive"><table class="gold-table"><thead><tr><th>Nome do Produto</th><th>Categoria</th><th>Preço Un. Venda</th><th>Volume em Estoque</th><th>Status</th></tr></thead><tbody id="table-bau-estoque-body"></tbody></table></div>
+                <div class="table-responsive"><table class="gold-table"><thead><tr><th>Nome do Produto</th><th>Categoria</th><th>Preço Un. Venda</th><th>Volume em Estoque</th><th>Validade</th><th>Status</th></tr></thead><tbody id="table-bau-estoque-body"></tbody></table></div>
             </div>
         </div>
 
@@ -1447,14 +1470,14 @@
                     <div class="profile-layout">
                         <div style="text-align:center;">
                             <div id="perfil-avatar-preview" class="profile-avatar">U</div>
-                            <button type="button" class="btn-action btn-delete" style="margin-top:12px;" onclick="removerImagemPerfil()">Remover Imagem</button>
+                            <button type="button" data-funcao-sistema="imagemPerfil" class="btn-action btn-delete" style="margin-top:12px;" onclick="removerImagemPerfil()">Remover Imagem</button>
                         </div>
                         <div>
                             <div class="form-grid">
                                 <div class="form-group"><label>Nome de Exibição</label><input type="text" id="perfil-nome" class="form-control" required></div>
                                 <div class="form-group"><label>Login</label><input type="text" id="perfil-login" class="form-control" disabled></div>
                                 <div class="form-group"><label>Cargo</label><input type="text" id="perfil-cargo" class="form-control" disabled></div>
-                                <div class="form-group"><label>Imagem de Perfil</label><input type="file" id="perfil-imagem" class="form-control" accept="image/*" onchange="previewImagemPerfil(event)"></div>
+                                <div class="form-group" data-funcao-sistema="imagemPerfil"><label>Imagem de Perfil</label><input type="file" id="perfil-imagem" class="form-control" accept="image/*" onchange="previewImagemPerfil(event)"></div>
                                 <div class="form-group"><label>Nova Senha</label><input type="password" id="perfil-nova-senha" class="form-control" minlength="4" placeholder="Deixe vazio para manter"></div>
                                 <div class="form-group"><label>Confirmar Nova Senha</label><input type="password" id="perfil-confirma-senha" class="form-control" minlength="4" placeholder="Repita a nova senha"></div>
                             </div>
@@ -1496,6 +1519,12 @@
                     </div>
                     <button type="submit" class="btn-gold">Salvar Configurações</button>
                 </form>
+            </div>
+            <div class="gold-box" id="box-controle-funcoes">
+                <div class="gold-box-title">Controle de Funções em Contingência</div>
+                <div class="muted-note">Exclusivo do Dono Principal. Desativar uma função não apaga dados; o módulo fica bloqueado até ser reativado.</div>
+                <div id="feature-control-grid" class="feature-control-grid"></div>
+                <button type="button" class="btn-gold" style="margin-top:18px;" onclick="salvarFuncoesSistema()">Aplicar Alterações</button>
             </div>
             <div class="gold-box" id="box-registro-acessos">
                 <div class="gold-box-title">Registro de Entrada e Saída de Funcionários</div>
@@ -1573,7 +1602,7 @@
                 </div>
                 <div id="supabase-status" style="margin-top:14px; color:var(--text-muted); font-size:0.9rem;">Não configurado.</div>
             </div>
-            <div class="gold-box">
+            <div class="gold-box" id="box-backup-dados">
                 <div class="gold-box-title">Backup</div>
                 <button onclick="exportarJSON()" class="btn-gold">Exportar Base como JSON</button>
                 <button onclick="resetarSistema()" class="btn-delete btn-action" style="padding:14px 28px; margin-left:10px;">Resetar Base de Dados</button>
@@ -1700,6 +1729,43 @@
         const mapById = (items) => new Map((items || []).map(item => [item.id, item]));
         const TODAS_PAGINAS = ['dashboard', 'pedidos', 'materias', 'movimentacoes-page', 'perfil', 'backup'];
         const TODAS_ACOES = ['usuarios', 'configuracoes', 'backup', 'resetar', 'entregarPedido', 'gerenciarEstoque', 'gerenciarProdutos', 'financeiro', 'editarPermissoes', 'gerenciarFornecedores', 'testes'];
+        const FUNCOES_SISTEMA = {
+            pedidos:{ grupo:'Operação', nome:'Pedidos e Encomendas', descricao:'Cadastro, edição, orçamento, entrega e cancelamento de pedidos.' },
+            clientes:{ grupo:'Operação', nome:'Clientes e Organizações', descricao:'Cadastro, edição e consulta de empresas, grupos e membros.' },
+            materias:{ grupo:'Operação', nome:'Matérias-Primas', descricao:'Cadastro, estoque mínimo, quantidade e validade dos insumos.' },
+            compras:{ grupo:'Operação', nome:'Compras de Insumos', descricao:'Carrinho, abastecimento e saída financeira das compras.' },
+            fornecedores:{ grupo:'Operação', nome:'Fornecedores', descricao:'Cadastro e manutenção dos fornecedores de materiais.' },
+            produtos:{ grupo:'Operação', nome:'Produtos e Receitas', descricao:'Catálogo, receitas, custos, preços e validade dos produtos.' },
+            producao:{ grupo:'Operação', nome:'Produção de Itens', descricao:'Forja, consumo de insumos e entrada do produto fabricado.' },
+            estoquePronto:{ grupo:'Operação', nome:'Estoque de Produtos Prontos', descricao:'Consulta e ajustes de entrada, remoção e perdas.' },
+            financeiro:{ grupo:'Gestão', nome:'Financeiro e Contabilidade', descricao:'Movimentações manuais, análises, caixa e histórico financeiro.' },
+            relatorios:{ grupo:'Gestão', nome:'Relatórios e Exportações', descricao:'Arquivos CSV, impressão e PDF dos dados gerenciais.' },
+            recibos:{ grupo:'Gestão', nome:'Recibos e Cópias', descricao:'Geração e cópia de recibos e documentos de pedidos.' },
+            fidelidade:{ grupo:'Gestão', nome:'Programa de Fidelidade', descricao:'Progresso de compras, cupons e descontos dos clientes.' },
+            alertasValidade:{ grupo:'Gestão', nome:'Alertas de Validade', descricao:'Quadro e notificações de itens próximos do vencimento.' },
+            alertasEstoque:{ grupo:'Gestão', nome:'Alertas de Estoque', descricao:'Quadros de estoque baixo e necessidade de compra no painel.' },
+            buscaGlobal:{ grupo:'Gestão', nome:'Busca Global', descricao:'Pesquisa unificada do painel inicial.' },
+            kanbanPedidos:{ grupo:'Gestão', nome:'Kanban de Pedidos', descricao:'Visão das etapas dos pedidos no painel inicial.' },
+            graficoComercial:{ grupo:'Gestão', nome:'Gráfico Comercial', descricao:'Gráfico dinâmico de movimentações e performance.' },
+            historicoDashboard:{ grupo:'Gestão', nome:'Histórico de Pedidos no Painel', descricao:'Tabela geral de pedidos e recibos na visão inicial.' },
+            notificacoes:{ grupo:'Interface', nome:'Notificações Internas', descricao:'Sino, contador e painel de alertas do cabeçalho.' },
+            personagens:{ grupo:'Interface', nome:'Personagens Interativos', descricao:'Personagens, falas e avisos visuais nas áreas.' },
+            imagemPerfil:{ grupo:'Interface', nome:'Imagem de Perfil', descricao:'Envio, visualização e remoção da foto de perfil.' },
+            usuarios:{ grupo:'Administração', nome:'Controle de Usuários', descricao:'Criação, bloqueio, alteração de cargo e remoção de acessos.' },
+            permissoes:{ grupo:'Administração', nome:'Editor de Cargos e Permissões', descricao:'Configuração das páginas e ações permitidas por cargo.' },
+            registrosAcesso:{ grupo:'Administração', nome:'Registro de Acessos', descricao:'Histórico de entradas e saídas dos usuários.' },
+            auditoria:{ grupo:'Administração', nome:'Auditoria do Sistema', descricao:'Registro das principais alterações feitas no ERP.' },
+            diagnostico:{ grupo:'Administração', nome:'Diagnóstico Automático', descricao:'Testes internos de integridade e consistência da base.' },
+            backupDados:{ grupo:'Infraestrutura', nome:'Backup e Restauração de Dados', descricao:'Exportação JSON e reset controlado da base local.' },
+            supabaseManual:{ grupo:'Infraestrutura', nome:'Conexão Manual Supabase', descricao:'Teste, envio e download manual da base online.' },
+            tempoReal:{ grupo:'Infraestrutura', nome:'Tempo Real Operacional', descricao:'Atualizações imediatas dos dados. O canal de contingência dos interruptores permanece ativo.' }
+        };
+        const DESTINO_FUNCAO = {
+            pedidos:'pedidos', 'clientes-page':'clientes',
+            materias:'materias', 'comprar-insumos':'compras', fornecedores:'fornecedores', produtos:'produtos',
+            forja:'producao', 'bau-itens':'estoquePronto',
+            'movimentacoes-page':'financeiro'
+        };
 
         const getCargoUsuario = () => currentUser?.cargo || '';
         const formatCargo = cargo => normalizarCargo(cargo) === 'DonoPrincipal' ? 'Dono Principal' : normalizarCargo(cargo);
@@ -1723,6 +1789,33 @@
             if(temPermissaoAcao(acao)) return true;
             showToast(mensagem);
             return false;
+        }
+
+        function funcaoAtiva(chave) {
+            return appState?.configuracoes?.funcoesAtivas?.[chave] !== false;
+        }
+
+        function exigirFuncaoAtiva(chave) {
+            if(funcaoAtiva(chave)) return true;
+            showToast(`${FUNCOES_SISTEMA[chave]?.nome || 'Esta função'} está temporariamente desativada pelo Dono Principal.`);
+            return false;
+        }
+
+        function getPaginaInicialDisponivel() {
+            if(temPermissaoPagina('dashboard')) return 'dashboard';
+            const candidatos = [
+                ['pedidos','pedidos'], ['clientes-page','clientes'],
+                ['materias','materias'], ['comprar-insumos','compras'], ['fornecedores','fornecedores'],
+                ['produtos','produtos'], ['forja','producao'], ['bau-itens','estoquePronto'],
+                ['movimentacoes-page', funcaoAtiva('financeiro') ? 'financeiro' : 'relatorios']
+            ];
+            const encontrado = candidatos.find(([destino, chave]) => {
+                const paginaBase = ['clientes-page'].includes(destino) ? 'pedidos'
+                    : ['comprar-insumos','fornecedores','produtos','forja','bau-itens'].includes(destino) ? 'materias'
+                    : destino;
+                return funcaoAtiva(chave) && temPermissaoPagina(paginaBase);
+            });
+            return encontrado?.[0] || 'perfil';
         }
 
         function normalizarCargo(cargo) {
@@ -1849,7 +1942,7 @@
             document.getElementById('auth-overlay').style.display = 'none';
             registrarAcessoUsuario('entrada', usuario);
             aplicarPermissoesInterface();
-            const paginaInicial = temPermissaoPagina('dashboard') ? 'dashboard' : (permissoesPorCargo[getCargoUsuario()] || ['pedidos'])[0];
+            const paginaInicial = getPaginaInicialDisponivel();
             mostrarBoasVindas(paginaInicial);
         }
 
@@ -1906,6 +1999,7 @@
         }
 
         function registrarAcessoUsuario(acao, usuario) {
+            if(!funcaoAtiva('registrosAcesso')) return;
             if(!usuario) return;
             appState.registrosAcesso = appState.registrosAcesso || [];
             appState.registrosAcesso.unshift({
@@ -1937,6 +2031,7 @@
         }
 
         function limparRegistrosAcesso() {
+            if(!exigirFuncaoAtiva('registrosAcesso')) return;
             if(!exigirAcao('usuarios')) return;
             if(confirm("Limpar todo o registro de entrada e saída?")) {
                 appState.registrosAcesso = [];
@@ -1997,6 +2092,8 @@
             if(boxPermissoes) boxPermissoes.style.display = temPermissaoAcao('editarPermissoes') ? 'block' : 'none';
             const boxTestes = document.getElementById('box-testes-sistema');
             if(boxTestes) boxTestes.style.display = temPermissaoAcao('testes') ? 'block' : 'none';
+            const boxFuncoes = document.getElementById('box-controle-funcoes');
+            if(boxFuncoes) boxFuncoes.style.display = getCargoUsuario() === 'DonoPrincipal' ? 'block' : 'none';
             const opcaoPrincipal = document.querySelector('#user-cargo option[value="DonoPrincipal"]');
             if(opcaoPrincipal) {
                 opcaoPrincipal.hidden = !temPermissaoAcao('editarPermissoes');
@@ -2008,6 +2105,7 @@
             renderPerfilUsuario();
             renderRegistrosAcesso();
             renderAuditoriaSistema();
+            aplicarFuncoesSistema();
         }
 
         function renderAvatarElement(element, usuario) {
@@ -2034,6 +2132,7 @@
         }
 
         function previewImagemPerfil(event) {
+            if(!exigirFuncaoAtiva('imagemPerfil')) return;
             const file = event.target.files?.[0];
             if(!file) return;
             if(!['image/png', 'image/jpeg', 'image/gif', 'image/webp'].includes(file.type)) {
@@ -2055,6 +2154,7 @@
         }
 
         function removerImagemPerfil() {
+            if(!exigirFuncaoAtiva('imagemPerfil')) return;
             perfilImagemTemp = '';
             const usuario = appState.usuarios.find(u => u.id === currentUser?.id);
             if(usuario) usuario.avatar = '';
@@ -2121,6 +2221,7 @@
 
         async function criarUsuarioSistema(e) {
             e.preventDefault();
+            if(!exigirFuncaoAtiva('usuarios')) return;
             if(!exigirAcao('usuarios')) return;
             const nome = sanitizeText(document.getElementById('user-nome').value);
             const login = sanitizeText(document.getElementById('user-login').value).toLowerCase();
@@ -2157,6 +2258,7 @@
         }
 
         function alternarUsuarioSistema(id) {
+            if(!exigirFuncaoAtiva('usuarios')) return;
             if(!exigirAcao('usuarios')) return;
             const usuario = appState.usuarios.find(u => u.id === id);
             if(!usuario) return;
@@ -2179,6 +2281,7 @@
         }
 
         async function resetarSenhaUsuario(id) {
+            if(!exigirFuncaoAtiva('usuarios')) return;
             if(!exigirAcao('usuarios')) return;
             const usuario = appState.usuarios.find(u => u.id === id);
             if(!usuario) return;
@@ -2200,6 +2303,7 @@
         }
 
         function removerUsuarioSistema(id) {
+            if(!exigirFuncaoAtiva('usuarios')) return;
             if(!exigirAcao('usuarios')) return;
             const usuariosAtivos = getUsuariosAtivos();
             if(id === currentUser?.id) {
@@ -2225,6 +2329,7 @@
         }
 
         function alterarCargoUsuario(id) {
+            if(!exigirFuncaoAtiva('permissoes')) return;
             if(!exigirAcao('editarPermissoes')) return;
             const usuario = appState.usuarios.find(u => u.id === id);
             if(!usuario || usuario.id === currentUser?.id) return;
@@ -2262,6 +2367,7 @@
         }
 
         function salvarPermissoesCargos() {
+            if(!exigirFuncaoAtiva('permissoes')) return;
             if(!exigirAcao('editarPermissoes')) return;
             ['Dono', 'Gerente', 'Funcionario'].forEach(cargo => {
                 appState.permissoesCargos[cargo] = {
@@ -2285,6 +2391,7 @@
             corDestaque: 'gold',
             modoCompacto: 'nao',
             reciboObservacao: '',
+            funcoesAtivas: Object.fromEntries(Object.keys(FUNCOES_SISTEMA).map(chave => [chave, true])),
             supabaseUrl: SUPABASE_URL_PADRAO,
             supabaseKey: SUPABASE_ANON_KEY_PADRAO,
             supabaseBaseId: 'blackwater_main',
@@ -2300,6 +2407,13 @@
             appState.configuracoes.estoqueBaixoPadrao = Math.max(0, parseInt(appState.configuracoes.estoqueBaixoPadrao) || 5);
             appState.configuracoes.corDestaque = ['gold', 'ruby', 'green', 'blue'].includes(appState.configuracoes.corDestaque) ? appState.configuracoes.corDestaque : 'gold';
             appState.configuracoes.modoCompacto = appState.configuracoes.modoCompacto === 'sim' ? 'sim' : 'nao';
+            appState.configuracoes.funcoesAtivas = {
+                ...Object.fromEntries(Object.keys(FUNCOES_SISTEMA).map(chave => [chave, true])),
+                ...(appState.configuracoes.funcoesAtivas || {})
+            };
+            Object.keys(FUNCOES_SISTEMA).forEach(chave => {
+                appState.configuracoes.funcoesAtivas[chave] = appState.configuracoes.funcoesAtivas[chave] !== false;
+            });
             appState.configuracoes.supabaseAutoSync = appState.configuracoes.supabaseAutoSync === 'sim' ? 'sim' : 'nao';
             appState.configuracoes.supabaseUrl = sanitizeText(appState.configuracoes.supabaseUrl) || SUPABASE_URL_PADRAO;
             appState.configuracoes.supabaseKey = sanitizeText(appState.configuracoes.supabaseKey) || SUPABASE_ANON_KEY_PADRAO;
@@ -2338,6 +2452,9 @@
                 valor: Math.max(0, safeNumber(m.valor)),
                 estoque: Math.max(0, safeNumber(m.estoque)),
                 estoqueMinimo: Math.max(0, safeNumber(m.estoqueMinimo, 5)),
+                validadeDias: Math.max(0, Math.floor(safeNumber(m.validadeDias))),
+                dataReposicao: sanitizeText(m.dataReposicao),
+                validadeAte: Math.max(0, Math.floor(safeNumber(m.validadeDias))) > 0 ? sanitizeText(m.validadeAte) : '',
                 fornecedorId: sanitizeText(m.fornecedorId)
             }));
             appState.fornecedores = appState.fornecedores.filter(Boolean).map(f => ({
@@ -2356,6 +2473,9 @@
                 rendimento: Math.max(1, safeNumber(p.rendimento, 1)),
                 lucroPerc: Math.max(0, safeNumber(p.lucroPerc, 100)),
                 estoque: Math.max(0, safeNumber(p.estoque)),
+                validadeDias: Math.max(0, Math.floor(safeNumber(p.validadeDias))),
+                dataReposicao: sanitizeText(p.dataReposicao),
+                validadeAte: Math.max(0, Math.floor(safeNumber(p.validadeDias))) > 0 ? sanitizeText(p.validadeAte) : '',
                 receita: Array.isArray(p.receita) ? p.receita.filter(Boolean).map(r => ({
                     materiaId: sanitizeText(r.materiaId),
                     qtd: Math.max(0, safeNumber(r.qtd))
@@ -2496,11 +2616,11 @@
             aplicarPermissoesInterface();
             aplicarEstadoPersonagens();
             if(currentUser) {
-                const paginaInicial = temPermissaoPagina('dashboard') ? 'dashboard' : (permissoesPorCargo[getCargoUsuario()] || ['pedidos'])[0];
+                const paginaInicial = getPaginaInicialDisponivel();
                 switchPage(paginaInicial);
             }
             iniciarRealtimeSupabase();
-            desenharGraficoMini();
+            if(funcaoAtiva('graficoComercial')) desenharGraficoMini();
         };
 
         function getNotificationContext(message = '', areaPreferida = '') {
@@ -2513,6 +2633,7 @@
                 dono: { key:'dono', role: 'Dono Principal', image: 'Imagens/personagens-interativos/dono-principal.webp' },
                 funcionario: { key:'funcionario', role: 'Mensageiro Blackwater', image: 'Imagens/personagens-interativos/funcionario.webp' }
             };
+            if(/autoriza|decisão|decisao/.test(texto)) return contextos.dono;
             if(/finance|caixa|pagamento|saldo|valor|lucro|supabase|nuvem|backup/.test(texto)) return contextos.financeiro;
             if(/cliente|pedido|orçamento|orcamento|cupom|fidelidade|venda|entrega|comercial/.test(texto)) return contextos.clientes;
             if(/fornecedor|compra|abastec|suprimento/.test(texto)) return contextos.fornecedor;
@@ -2532,6 +2653,7 @@
             'clientes-page': 'Imagens/otimizadas/visao-geral.webp',
             materias: 'Imagens/geradas-v2/fundo-oficina.webp',
             'comprar-insumos': 'Imagens/otimizadas/producao-estoque.webp',
+            fornecedores: 'Imagens/otimizadas/producao-estoque.webp',
             produtos: 'Imagens/otimizadas/configuracoes.webp',
             forja: 'Imagens/geradas-v2/fundo-oficina.webp',
             'bau-itens': 'Imagens/otimizadas/perfil.webp',
@@ -2543,6 +2665,7 @@
         const responsavelPorDestino = {
             dashboard:'dono', pedidos:'clientes', 'clientes-page':'clientes',
             materias:'producao', 'comprar-insumos':'fornecedor', produtos:'producao',
+            fornecedores:'fornecedor',
             forja:'producao', 'bau-itens':'producao', 'movimentacoes-page':'financeiro',
             perfil:'funcionario', backup:'dono'
         };
@@ -2585,7 +2708,7 @@
         }
 
         function aplicarEstadoPersonagens() {
-            const ativos = personagensInterativosAtivos();
+            const ativos = funcaoAtiva('personagens') && personagensInterativosAtivos();
             document.body.classList.toggle('characters-disabled', !ativos);
             const button = document.getElementById('interactive-toggle');
             if(button) {
@@ -2597,6 +2720,7 @@
         }
 
         function togglePersonagensInterativos() {
+            if(!exigirFuncaoAtiva('personagens')) return;
             const ativar = !personagensInterativosAtivos();
             localStorage.setItem(PERSONAGENS_ATIVOS_KEY, ativar ? 'sim' : 'nao');
             aplicarEstadoPersonagens();
@@ -2684,7 +2808,64 @@
             mostrarMensagemPersonagem(message, areaPreferida);
         }
 
+        function getDataLocalISO(data = new Date()) {
+            const ano = data.getFullYear();
+            const mes = String(data.getMonth() + 1).padStart(2, '0');
+            const dia = String(data.getDate()).padStart(2, '0');
+            return `${ano}-${mes}-${dia}`;
+        }
+
+        function parseDataLocal(dataISO) {
+            const partes = String(dataISO || '').split('-').map(Number);
+            if(partes.length !== 3 || partes.some(n => !Number.isFinite(n))) return null;
+            const data = new Date(partes[0], partes[1] - 1, partes[2]);
+            return Number.isNaN(data.getTime()) ? null : data;
+        }
+
+        function calcularDataValidade(validadeDias, dataBase = getDataLocalISO()) {
+            const dias = Math.max(0, Math.floor(safeNumber(validadeDias)));
+            const base = parseDataLocal(dataBase) || new Date();
+            if(dias <= 0) return '';
+            base.setDate(base.getDate() + dias);
+            return getDataLocalISO(base);
+        }
+
+        function renovarValidadeItem(item, dataBase = getDataLocalISO()) {
+            if(!item) return;
+            item.dataReposicao = dataBase;
+            item.validadeAte = calcularDataValidade(item.validadeDias, dataBase);
+        }
+
+        function getStatusValidade(item) {
+            const diasValidade = Math.max(0, Math.floor(safeNumber(item?.validadeDias)));
+            const estoque = Math.max(0, safeNumber(item?.estoque));
+            if(diasValidade <= 0) return { codigo: 'sem_controle', texto: 'Sem controle', diasRestantes: null, badge: 'badge-blue' };
+            if(estoque <= 0) return { codigo: 'sem_estoque', texto: 'Sem estoque', diasRestantes: null, badge: 'badge-blue' };
+            const vencimento = parseDataLocal(item?.validadeAte);
+            if(!vencimento) return { codigo: 'aguardando', texto: 'Aguardando entrada', diasRestantes: null, badge: 'badge-warn' };
+            const hoje = parseDataLocal(getDataLocalISO());
+            const diasRestantes = Math.ceil((vencimento - hoje) / 86400000);
+            const limiteAviso = Math.max(1, Math.min(7, Math.ceil(diasValidade * 0.2)));
+            if(diasRestantes < 0) return { codigo: 'vencido', texto: 'Vencido', diasRestantes, badge: 'badge-danger' };
+            if(diasRestantes <= limiteAviso) return { codigo: 'proximo', texto: 'Próximo do vencimento', diasRestantes, badge: 'badge-warn' };
+            return { codigo: 'em_dia', texto: 'Em dia', diasRestantes, badge: 'badge-success' };
+        }
+
+        function formatarDataValidade(dataISO) {
+            const data = parseDataLocal(dataISO);
+            return data ? data.toLocaleDateString('pt-BR') : '-';
+        }
+
+        function getValidadeResumo(item) {
+            const status = getStatusValidade(item);
+            const prazo = status.diasRestantes === null
+                ? (item.validadeDias > 0 ? `${item.validadeDias} dias` : 'Não definida')
+                : (status.diasRestantes < 0 ? `${Math.abs(status.diasRestantes)} dia(s) vencido` : `${status.diasRestantes} dia(s)`);
+            return `<span class="badge ${status.badge}">${escapeHTML(status.texto)}</span><br><small>${formatarDataValidade(item.validadeAte)} · ${escapeHTML(prazo)}</small>`;
+        }
+
         function gerarNotificacoesSistema() {
+            if(!funcaoAtiva('notificacoes')) return [];
             const notificacoes = [];
             appState.materias.filter(m => m.estoque <= m.estoqueMinimo).forEach(m => notificacoes.push({
                 id: `estoque_${m.id}_${m.estoque}`,
@@ -2693,6 +2874,20 @@
                 detalhe: `${m.estoque} un disponíveis; mínimo ${m.estoqueMinimo} un.`,
                 pagina: 'materias'
             }));
+            if(funcaoAtiva('alertasValidade')) [
+                ...appState.materias.map(item => ({ item, tipoItem: 'Matéria-prima' })),
+                ...appState.produtos.map(item => ({ item, tipoItem: 'Produto final' }))
+            ].forEach(({ item, tipoItem }) => {
+                const status = getStatusValidade(item);
+                if(!['vencido', 'proximo'].includes(status.codigo)) return;
+                notificacoes.push({
+                    id: `validade_${item.id}_${item.validadeAte}_${status.codigo}`,
+                    tipo: status.codigo === 'vencido' ? 'danger' : 'warning',
+                    titulo: `${status.texto}: ${item.nome}`,
+                    detalhe: `${tipoItem} · validade ${formatarDataValidade(item.validadeAte)}.`,
+                    pagina: item.id.startsWith('mat_') ? 'materias' : 'produtos'
+                });
+            });
             appState.pedidos.filter(p => p.status === 'Pronto para entrega').forEach(p => notificacoes.push({
                 id: `pronto_${p.id}`, tipo: 'success', titulo: `Pedido pronto: ${p.cliente}`,
                 detalhe: getPedidoResumoProdutos(p), pagina: 'pedidos'
@@ -2712,7 +2907,8 @@
             const button = document.getElementById('notification-button');
             const count = document.getElementById('notification-count');
             const list = document.getElementById('notification-list');
-            if(button) button.style.display = currentUser ? '' : 'none';
+            if(button) button.style.display = currentUser && funcaoAtiva('notificacoes') ? '' : 'none';
+            if(!funcaoAtiva('notificacoes')) document.getElementById('notification-panel')?.classList.remove('active');
             if(!list || !count) return;
             const notificacoes = gerarNotificacoesSistema();
             const lidas = new Set(appState.notificacoesLidas || []);
@@ -2726,6 +2922,7 @@
         }
 
         function toggleNotificacoes() {
+            if(!exigirFuncaoAtiva('notificacoes')) return;
             document.getElementById('notification-panel')?.classList.toggle('active');
         }
 
@@ -2752,6 +2949,7 @@
         }
 
         function registrarAuditoria(acao, alvo, detalhe = '') {
+            if(!funcaoAtiva('auditoria') && acao !== 'controle_funcoes') return;
             appState.auditoria = appState.auditoria || [];
             appState.auditoria.unshift({
                 id: 'audit_' + Date.now(),
@@ -2827,6 +3025,7 @@
         }
 
         async function salvarConfiguracoesSupabase() {
+            if(!exigirFuncaoAtiva('supabaseManual')) return;
             if(!exigirAcao('configuracoes')) return;
             normalizarConfiguracoes();
             appState.configuracoes.supabaseUrl = sanitizeText(document.getElementById('config-supabase-url')?.value);
@@ -2841,6 +3040,7 @@
         }
 
         async function testarSupabase() {
+            if(!exigirFuncaoAtiva('supabaseManual')) return;
             if(!exigirAcao('configuracoes')) return;
             await salvarConfiguracoesSupabase();
             const client = getSupabaseClient();
@@ -2864,6 +3064,7 @@
         }
 
         async function enviarDadosSupabase(silencioso = false) {
+            if(!silencioso && !exigirFuncaoAtiva('supabaseManual')) return;
             if(!silencioso && !exigirAcao('backup')) return;
             const client = getSupabaseClient();
             const cfg = getSupabaseConfig();
@@ -2888,6 +3089,7 @@
         }
 
         async function baixarDadosSupabase() {
+            if(!exigirFuncaoAtiva('supabaseManual')) return;
             if(!exigirAcao('backup')) return;
             const client = getSupabaseClient();
             const cfg = getSupabaseConfig();
@@ -3012,13 +3214,39 @@
                     table: 'erp_state',
                     filter: `id=eq.${cfg.baseId}`
                 }, payload => {
-                    if(payload?.new?.data) aplicarEstadoRemotoSupabase(payload.new.data);
+                    if(!payload?.new?.data) return;
+                    const estadoRemoto = payload.new.data;
+                    if(funcaoAtiva('tempoReal') || estadoRemoto.configuracoes?.funcoesAtivas?.tempoReal !== false) {
+                        aplicarEstadoRemotoSupabase(estadoRemoto);
+                    } else {
+                        aplicarFuncoesRemotasContingencia(estadoRemoto);
+                    }
                 })
                 .subscribe(status => {
                     if(status === 'SUBSCRIBED') {
-                        setSupabaseStatus("Tempo real ativo. Alterações de outros usuários serão carregadas automaticamente.");
+                        setSupabaseStatus(funcaoAtiva('tempoReal')
+                            ? "Tempo real ativo. Alterações de outros usuários serão carregadas automaticamente."
+                            : "Tempo real operacional pausado. Canal de contingência dos interruptores permanece ativo.");
                     }
                 });
+        }
+
+        function aplicarFuncoesRemotasContingencia(estadoRemoto) {
+            const remotas = estadoRemoto?.configuracoes?.funcoesAtivas;
+            if(!remotas || typeof remotas !== 'object') return;
+            const normalizadas = Object.fromEntries(Object.keys(FUNCOES_SISTEMA).map(chave => [chave, remotas[chave] !== false]));
+            if(JSON.stringify(appState.configuracoes.funcoesAtivas || {}) === JSON.stringify(normalizadas)) return;
+            appState.configuracoes.funcoesAtivas = normalizadas;
+            appState.meta = {
+                ...appState.meta,
+                revision: Math.max(safeNumber(appState.meta?.revision), safeNumber(estadoRemoto.meta?.revision)),
+                updatedAt: sanitizeText(estadoRemoto.meta?.updatedAt) || appState.meta?.updatedAt,
+                updatedBy: sanitizeText(estadoRemoto.meta?.updatedBy) || appState.meta?.updatedBy
+            };
+            stateStorage.save(appState);
+            sincronizarTudo();
+            setSupabaseStatus("Controles de contingência atualizados pela nuvem.");
+            showToast("O Dono Principal atualizou as funções disponíveis.");
         }
 
         function loadFromLocalStorage() {
@@ -3072,34 +3300,36 @@
         }
 
         function sincronizarTudo() {
-            populateCompraMateriasSelect();
-            populateFornecedoresSelect();
-            populateForjaProdutosSelect();
-            populatePedidosProdutosSelect();
-            populateAjusteBauProdutosSelect();
+            if(funcaoAtiva('compras')) populateCompraMateriasSelect();
+            if(funcaoAtiva('materias')) populateFornecedoresSelect();
+            if(funcaoAtiva('producao')) populateForjaProdutosSelect();
+            if(funcaoAtiva('pedidos')) populatePedidosProdutosSelect();
+            if(funcaoAtiva('estoquePronto')) populateAjusteBauProdutosSelect();
             
             renderDashboard();
             renderResumoModulos();
-            renderPedidos();
-            renderMaterias();
-            renderFornecedores();
-            renderProdutos();
-            renderMovimentacoesLogs();
-            renderAnalisesFinanceiras();
-            renderBauEstoque();
-            renderClientesPastas();
+            if(funcaoAtiva('pedidos')) renderPedidos();
+            if(funcaoAtiva('materias')) renderMaterias();
+            if(funcaoAtiva('fornecedores')) renderFornecedores();
+            if(funcaoAtiva('produtos')) renderProdutos();
+            if(funcaoAtiva('financeiro')) {
+                renderMovimentacoesLogs();
+                renderAnalisesFinanceiras();
+            }
+            if(funcaoAtiva('estoquePronto')) renderBauEstoque();
+            if(funcaoAtiva('clientes')) renderClientesPastas();
             renderConfiguracoes();
-            renderUsuariosSistema();
-            renderRegistrosAcesso();
-            renderAuditoriaSistema();
-            renderNotificacoes();
-            renderEditorPermissoes();
-            renderBuscaGlobal();
+            if(funcaoAtiva('usuarios')) renderUsuariosSistema();
+            if(funcaoAtiva('registrosAcesso')) renderRegistrosAcesso();
+            if(funcaoAtiva('auditoria')) renderAuditoriaSistema();
+            if(funcaoAtiva('notificacoes')) renderNotificacoes();
+            if(funcaoAtiva('permissoes')) renderEditorPermissoes();
+            if(funcaoAtiva('buscaGlobal')) renderBuscaGlobal();
             aplicarPermissoesInterface();
             
-            checkPedidoInsumosPreview();
-            verificarInsumosForja();
-            atualizarPrecoCompraPreview();
+            if(funcaoAtiva('pedidos')) checkPedidoInsumosPreview();
+            if(funcaoAtiva('producao')) verificarInsumosForja();
+            if(funcaoAtiva('compras')) atualizarPrecoCompraPreview();
             desenharGraficoMini();
             
             if(typeof runExtensionSystemPipeline === 'function') {
@@ -3138,7 +3368,126 @@
             if(supabaseBaseId) supabaseBaseId.value = cfg.supabaseBaseId || 'blackwater_main';
             if(supabaseAuto) supabaseAuto.value = cfg.supabaseAutoSync || 'nao';
             if(mostrarAtalhos) mostrarAtalhos.value = cfg.mostrarAtalhos || 'sim';
+            renderControleFuncoes();
             aplicarConfiguracoesVisuais();
+        }
+
+        function renderControleFuncoes() {
+            const container = document.getElementById('feature-control-grid');
+            if(!container) return;
+            if(getCargoUsuario() !== 'DonoPrincipal') {
+                container.innerHTML = '';
+                return;
+            }
+            let grupoAtual = '';
+            container.innerHTML = Object.entries(FUNCOES_SISTEMA).map(([chave, dados]) => {
+                const tituloGrupo = dados.grupo !== grupoAtual
+                    ? `<div class="feature-group-title">${escapeHTML(dados.grupo)}</div>`
+                    : '';
+                grupoAtual = dados.grupo;
+                return `${tituloGrupo}<div class="feature-control">
+                    <span><b>${escapeHTML(dados.nome)}</b><small>${escapeHTML(dados.descricao)}</small></span>
+                    <label class="feature-switch" title="${funcaoAtiva(chave) ? 'Função ativada' : 'Função desativada'}">
+                        <input type="checkbox" data-feature-toggle="${chave}" ${funcaoAtiva(chave) ? 'checked' : ''}>
+                        <span></span>
+                    </label>
+                </div>`;
+            }).join('');
+        }
+
+        function aplicarFuncoesSistema() {
+            normalizarConfiguracoes();
+            document.querySelectorAll('[data-funcao-sistema]').forEach(elemento => {
+                const chave = elemento.getAttribute('data-funcao-sistema');
+                const pagina = elemento.getAttribute('data-page-link');
+                const permitido = !pagina || temPermissaoPagina(pagina);
+                elemento.style.display = funcaoAtiva(chave) && permitido ? '' : 'none';
+            });
+            const seletoresDiretos = {
+                usuarios:'#box-controle-acesso', permissoes:'#box-editor-permissoes',
+                registrosAcesso:'#box-registro-acessos', auditoria:'#box-auditoria-sistema',
+                diagnostico:'#box-testes-sistema', supabaseManual:'#box-supabase-sync'
+            };
+            Object.entries(seletoresDiretos).forEach(([chave, seletor]) => {
+                const elemento = document.querySelector(seletor);
+                if(!elemento) return;
+                const permissao = chave === 'permissoes' ? temPermissaoAcao('editarPermissoes')
+                    : chave === 'diagnostico' ? temPermissaoAcao('testes')
+                    : chave === 'supabaseManual' ? temPermissaoAcao('configuracoes')
+                    : temPermissaoAcao('usuarios');
+                elemento.style.display = funcaoAtiva(chave) && permissao ? '' : 'none';
+            });
+            const boxBackup = document.getElementById('box-backup-dados');
+            if(boxBackup) boxBackup.style.display = funcaoAtiva('backupDados') && temPermissaoAcao('backup') ? '' : 'none';
+            aplicarVisibilidadeModulos();
+            document.body.classList.toggle('function-fidelidade-disabled', !funcaoAtiva('fidelidade'));
+            aplicarEstadoPersonagens();
+            if(!funcaoAtiva('notificacoes')) document.getElementById('notification-panel')?.classList.remove('active');
+            iniciarRealtimeSupabase();
+        }
+
+        function aplicarVisibilidadeModulos() {
+            const modulos = {
+                'sec-pedidos':'pedidos', 'sec-clientes':'clientes',
+                'sec-materias':'materias', 'sec-comprar-insumos':'compras',
+                'sec-fornecedores':'fornecedores', 'sec-produtos':'produtos',
+                'sec-forja':'producao', 'sec-bau-itens':'estoquePronto',
+                'sec-financeiro-operacao':'financeiro', 'sec-financeiro-historico':'financeiro',
+                'sec-relatorios':'relatorios'
+            };
+            Object.entries(modulos).forEach(([sectionId, chave]) => {
+                const heading = document.getElementById(sectionId);
+                if(!heading) return;
+                const visivel = funcaoAtiva(chave);
+                heading.style.display = visivel ? '' : 'none';
+                let elemento = heading.nextElementSibling;
+                while(elemento && !elemento.classList.contains('module-heading')) {
+                    elemento.style.display = visivel ? '' : 'none';
+                    elemento = elemento.nextElementSibling;
+                }
+                document.querySelectorAll(`button[onclick*="'${sectionId}'"]`).forEach(botao => {
+                    botao.style.display = visivel ? '' : 'none';
+                });
+            });
+            const paginaFinanceiro = document.getElementById('page-movimentacoes-page');
+            if(paginaFinanceiro && !funcaoAtiva('financeiro') && !funcaoAtiva('relatorios')) paginaFinanceiro.classList.remove('active');
+            const grupoComercial = document.querySelector('.sidebar-group[data-page-link="pedidos"]');
+            if(grupoComercial) grupoComercial.style.display = temPermissaoPagina('pedidos') && (funcaoAtiva('pedidos') || funcaoAtiva('clientes')) ? '' : 'none';
+            const grupoProducao = document.querySelector('.sidebar-group[data-page-link="materias"]');
+            if(grupoProducao) grupoProducao.style.display = temPermissaoPagina('materias') && ['materias','compras','fornecedores','produtos','producao','estoquePronto'].some(funcaoAtiva) ? '' : 'none';
+            const linkFinanceiro = document.querySelector('[data-page-link="movimentacoes-page"]');
+            if(linkFinanceiro) linkFinanceiro.style.display = temPermissaoPagina('movimentacoes-page') && (funcaoAtiva('financeiro') || funcaoAtiva('relatorios')) ? '' : 'none';
+            document.querySelectorAll('[onclick*="switchPage"]').forEach(botao => {
+                const chamada = botao.getAttribute('onclick') || '';
+                const correspondencia = chamada.match(/switchPage\('([^']+)'\)/);
+                if(!correspondencia) return;
+                const destino = correspondencia[1];
+                const chave = DESTINO_FUNCAO[destino];
+                if(chave) botao.style.display = funcaoAtiva(chave) ? '' : 'none';
+            });
+            document.querySelectorAll('[onclick*="copiarReciboTexto"]').forEach(botao => {
+                botao.style.display = funcaoAtiva('recibos') ? '' : 'none';
+            });
+        }
+
+        function salvarFuncoesSistema() {
+            if(getCargoUsuario() !== 'DonoPrincipal') {
+                showToast('Somente o Dono Principal pode alterar o estado das funções.');
+                return;
+            }
+            const estadoAnterior = { ...appState.configuracoes.funcoesAtivas };
+            document.querySelectorAll('[data-feature-toggle]').forEach(input => {
+                appState.configuracoes.funcoesAtivas[input.dataset.featureToggle] = input.checked;
+            });
+            const alteradas = Object.keys(FUNCOES_SISTEMA).filter(chave => estadoAnterior[chave] !== appState.configuracoes.funcoesAtivas[chave]);
+            if(!alteradas.length) {
+                showToast('Nenhuma função foi alterada.');
+                return;
+            }
+            registrarAuditoria('controle_funcoes', 'Configurações', alteradas.map(chave => `${FUNCOES_SISTEMA[chave].nome}: ${funcaoAtiva(chave) ? 'ativada' : 'desativada'}`).join('; '));
+            saveToLocalStorage();
+            renderControleFuncoes();
+            showToast(`${alteradas.length} função(ões) atualizada(s).`);
         }
 
         function aplicarConfiguracoesVisuais() {
@@ -3183,6 +3532,7 @@
             e.preventDefault();
             if(!exigirAcao('configuracoes')) return;
             appState.configuracoes = {
+                ...appState.configuracoes,
                 empresaNome: sanitizeText(document.getElementById('config-empresa-nome')?.value) || 'Gráfica de Blackwater',
                 subtituloSistema: sanitizeText(document.getElementById('config-subtitulo-sistema')?.value) || 'G R Á F I C A',
                 contatoPadrao: sanitizeText(document.getElementById('config-contato-padrao')?.value),
@@ -3227,7 +3577,7 @@
         }
 
         function navegarMenu(destino, button) {
-            switchPage(destino);
+            if(switchPage(destino) === false) return;
             document.querySelectorAll('.sidebar-link.active').forEach(link => link.classList.remove('active'));
             if(button) {
                 button.classList.add('active');
@@ -3243,6 +3593,7 @@
                 'clientes-page': 'Clientes e Organizações',
                 materias: 'Matérias-Primas',
                 'comprar-insumos': 'Comprar Insumos',
+                fornecedores: 'Fornecedores',
                 produtos: 'Produtos e Receitas',
                 forja: 'Produção de Itens',
                 'bau-itens': 'Estoque Pronto',
@@ -3262,9 +3613,13 @@
 
         function switchPage(pageId) {
             const requestedPageId = pageId;
+            const funcaoDestino = DESTINO_FUNCAO[requestedPageId];
+            const financeiroOuRelatorios = requestedPageId === 'movimentacoes-page' && (funcaoAtiva('financeiro') || funcaoAtiva('relatorios'));
+            if(funcaoDestino && !financeiroOuRelatorios && !exigirFuncaoAtiva(funcaoDestino)) return false;
             const pageAliases = {
                 'clientes-page': { page: 'pedidos', section: 'sec-clientes' },
                 'comprar-insumos': { page: 'materias', section: 'sec-comprar-insumos' },
+                fornecedores: { page: 'materias', section: 'sec-fornecedores' },
                 'produtos': { page: 'materias', section: 'sec-produtos' },
                 'forja': { page: 'materias', section: 'sec-forja' },
                 'bau-itens': { page: 'materias', section: 'sec-bau-itens' }
@@ -3274,7 +3629,7 @@
             pageId = alias?.page || pageId;
             if(authReady && !temPermissaoPagina(pageId)) {
                 showToast("Seu cargo não tem permissão para acessar esta área.");
-                return;
+                return false;
             }
             document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
@@ -3290,12 +3645,18 @@
                 irParaModulo(sectionToFocus);
             } else {
                 const defaultSections = {
-                    pedidos: 'sec-pedidos',
-                    materias: 'sec-materias'
+                    pedidos: funcaoAtiva('pedidos') ? 'sec-pedidos' : 'sec-clientes',
+                    materias: funcaoAtiva('materias') ? 'sec-materias'
+                        : funcaoAtiva('compras') ? 'sec-comprar-insumos'
+                        : funcaoAtiva('fornecedores') ? 'sec-fornecedores'
+                        : funcaoAtiva('produtos') ? 'sec-produtos'
+                        : funcaoAtiva('producao') ? 'sec-forja' : 'sec-bau-itens',
+                    'movimentacoes-page': funcaoAtiva('financeiro') ? 'sec-financeiro-operacao' : 'sec-relatorios'
                 };
                 if(defaultSections[pageId]) ativarSubaba(defaultSections[pageId]);
                 window.scrollTo({top: 0, behavior: 'smooth'});
             }
+            return true;
         }
 
         function irParaModulo(sectionId) {
@@ -3308,7 +3669,12 @@
                 'sec-financeiro-historico':'movimentacoes-page',
                 'sec-relatorios':'movimentacoes-page'
             };
-            atualizarCenaInterativa(destinosPorSecao[sectionId] || document.body.dataset.destinoAtual || 'dashboard', true);
+            const destino = destinosPorSecao[sectionId] || document.body.dataset.destinoAtual || 'dashboard';
+            const funcaoDestino = sectionId === 'sec-fornecedores' ? 'fornecedores'
+                : sectionId === 'sec-relatorios' ? 'relatorios'
+                : DESTINO_FUNCAO[destino];
+            if(funcaoDestino && !exigirFuncaoAtiva(funcaoDestino)) return;
+            atualizarCenaInterativa(destino, true);
             if(ativarSubaba(sectionId)) {
                 window.scrollTo({ top: Math.max(0, (document.querySelector('.header-container')?.offsetHeight || 90) - 90), behavior: 'smooth' });
                 return;
@@ -3350,6 +3716,7 @@
 
         function saveClientePasta(e) {
             e.preventDefault();
+            if(!exigirFuncaoAtiva('clientes')) return;
             const localInput = sanitizeText(document.getElementById('cli-local').value);
             const nomeInput = sanitizeText(document.getElementById('cli-nome').value);
             const cargoInput = sanitizeText(document.getElementById('cli-cargo').value);
@@ -3424,6 +3791,7 @@
         }
 
         function escolherBeneficioFidelidade(pastaIndex, tipo) {
+            if(!exigirFuncaoAtiva('fidelidade')) return;
             const pasta = appState.clientesPastas[pastaIndex];
             if(!pasta) return;
             const fidelidade = getFidelidadePasta(pasta);
@@ -3536,6 +3904,7 @@
         }
 
         function editarMembroCliente(pastaIndex, membroIndex) {
+            if(!exigirFuncaoAtiva('clientes')) return;
             const pasta = appState.clientesPastas[pastaIndex];
             const membro = pasta?.membros?.[membroIndex];
             if(!pasta || !membro) {
@@ -3574,6 +3943,7 @@
         }
 
         function removerMembroCliente(pastaIndex, membroIndex) {
+            if(!exigirFuncaoAtiva('clientes')) return;
             const pasta = appState.clientesPastas[pastaIndex];
             const membro = pasta?.membros?.[membroIndex];
             if(!pasta || !membro) return;
@@ -3590,6 +3960,7 @@
         }
 
         function deletarPastaCliente(index) {
+            if(!exigirFuncaoAtiva('clientes')) return;
             const pasta = appState.clientesPastas[index];
             if(!pasta) return;
             const possuiPedidosAtivos = appState.pedidos.some(pedido =>
@@ -3710,6 +4081,7 @@
 
         async function executarForja(e) {
             e.preventDefault();
+            if(!exigirFuncaoAtiva('producao')) return;
             if(!exigirAcao('gerenciarEstoque')) return;
             if(!(await validarConcorrenciaEstoque())) return;
             const prodId = document.getElementById('forja-produto-id').value;
@@ -3746,17 +4118,27 @@
                     materiaDestino.estoque = (materiaDestino.estoque || 0) + rendimentoTotal;
                     if(custoUnitario > 0) materiaDestino.valor = custoUnitario;
                     materiaDestino.categoria = materiaDestino.categoria || 'Produção Interna';
+                    if(!materiaDestino.validadeDias && produto.validadeDias) materiaDestino.validadeDias = produto.validadeDias;
+                    renovarValidadeItem(materiaDestino);
                 } else {
-                    appState.materias.push({
+                    const novaMateria = {
                         id: 'mat_' + Date.now(),
                         nome: produto.nome,
                         categoria: 'Produção Interna',
                         valor: custoUnitario,
-                        estoque: rendimentoTotal
-                    });
+                        estoque: rendimentoTotal,
+                        estoqueMinimo: appState.configuracoes.estoqueBaixoPadrao || 5,
+                        validadeDias: Math.max(0, Math.floor(safeNumber(produto.validadeDias))),
+                        dataReposicao: '',
+                        validadeAte: '',
+                        fornecedorId: ''
+                    };
+                    renovarValidadeItem(novaMateria);
+                    appState.materias.push(novaMateria);
                 }
             } else {
                 produto.estoque = (produto.estoque || 0) + rendimentoTotal;
+                renovarValidadeItem(produto);
             }
 
             registrarMovimentacao({
@@ -3822,6 +4204,7 @@
         }
 
         function registrarVendaFidelidade(pedido, valorPago) {
+            if(!funcaoAtiva('fidelidade')) return;
             const pasta = encontrarPastaEmpresa(pedido.empresa, pedido.cliente);
             if(!pasta) return;
             const fidelidade = getFidelidadePasta(pasta);
@@ -4095,6 +4478,7 @@
         }
 
         function adicionarProdutoAoPedido() {
+            if(!exigirFuncaoAtiva('pedidos')) return;
             const prodId = document.getElementById('ped-produto-id').value;
             const qtd = Math.max(1, parseInt(document.getElementById('ped-quantidade').value) || 1);
             const produto = appState.produtos.find(p => p.id === prodId);
@@ -4182,6 +4566,7 @@
 
         function savePedido(e) {
             e.preventDefault();
+            if(!exigirFuncaoAtiva('pedidos')) return;
             if(!currentUser) return;
             const prodId = document.getElementById('ped-produto-id').value;
             const qtd = Math.max(1, parseInt(document.getElementById('ped-quantidade').value) || 1);
@@ -4274,6 +4659,7 @@
         }
 
         function editarPedido(id) {
+            if(!exigirFuncaoAtiva('pedidos')) return;
             const pedido = appState.pedidos.find(p => p.id === id);
             if(!pedido) return;
 
@@ -4448,6 +4834,7 @@ ${separador}`;
         }
 
         async function copiarReciboTexto(id) {
+            if(!exigirFuncaoAtiva('recibos')) return;
             const p = appState.pedidos.find(ped => ped.id === id);
             if(!p) return;
             const textoRecibo = gerarReciboPedidoTexto(p);
@@ -4542,6 +4929,7 @@ ${separador}`;
         }
 
         function converterOrcamentoEmPedido(id) {
+            if(!exigirFuncaoAtiva('pedidos')) return;
             if(!exigirAcao('entregarPedido', "Somente Dono ou Gerente podem aprovar orçamentos.")) return;
             const pedido = appState.pedidos.find(p => p.id === id);
             if(!pedido || pedido.tipoRegistro !== 'orcamento') return;
@@ -4554,6 +4942,7 @@ ${separador}`;
         }
 
         function registrarPagamentoPedido(id) {
+            if(!exigirFuncaoAtiva('financeiro')) return;
             if(!exigirAcao('financeiro')) return;
             const pedido = appState.pedidos.find(p => p.id === id);
             if(!pedido || pedido.tipoRegistro === 'orcamento') return;
@@ -4629,6 +5018,7 @@ ${separador}`;
         }
 
         async function venderUsandoBau(id) {
+            if(!exigirFuncaoAtiva('pedidos') || !exigirFuncaoAtiva('estoquePronto')) return;
             if(!exigirAcao('entregarPedido', "Somente Dono ou Gerente podem efetuar a entrega.")) return;
             if(!(await validarConcorrenciaEstoque())) return;
             const pedido = appState.pedidos.find(p => p.id === id);
@@ -4650,6 +5040,7 @@ ${separador}`;
         }
 
         async function venderFabricandoNaHora(id) {
+            if(!exigirFuncaoAtiva('pedidos') || !exigirFuncaoAtiva('producao')) return;
             if(!exigirAcao('entregarPedido', "Somente Dono ou Gerente podem produzir e entregar pedidos.")) return;
             if(!(await validarConcorrenciaEstoque())) return;
             const pedido = appState.pedidos.find(p => p.id === id);
@@ -4679,6 +5070,7 @@ ${separador}`;
         }
 
         function deletePedido(id) {
+            if(!exigirFuncaoAtiva('pedidos')) return;
             if(!exigirAcao('entregarPedido', "Somente Dono ou Gerente podem remover pedidos.")) return;
             if(confirm("Remover permanentemente o pedido da base de dados?")) {
                 liberarReservaCupomPedido(id);
@@ -4690,6 +5082,7 @@ ${separador}`;
         }
 
         function cancelarPedido(id) {
+            if(!exigirFuncaoAtiva('pedidos')) return;
             if(!exigirAcao('entregarPedido', "Somente Dono ou Gerente podem cancelar pedidos.")) return;
             const pedido = appState.pedidos.find(p => p.id === id);
             if(!pedido || ['Entregue', 'Cancelado'].includes(pedido.status)) return;
@@ -4785,6 +5178,7 @@ ${separador}`;
 
         async function executarCompraInsumo(e) {
             e.preventDefault();
+            if(!exigirFuncaoAtiva('compras')) return;
             if(!exigirAcao('gerenciarEstoque')) return;
             if(!(await validarConcorrenciaEstoque())) return;
             const itensCarrinho = getCompraInsumosCarrinho();
@@ -4803,6 +5197,7 @@ ${separador}`;
             appState.caixa -= custoTotal;
             itensCarrinho.forEach(item => {
                 item.materia.estoque += item.qtd;
+                renovarValidadeItem(item.materia);
             });
 
             registrarMovimentacao({
@@ -4829,7 +5224,7 @@ ${separador}`;
             const tbody = document.getElementById('table-bau-estoque-body');
             if(!tbody) return; tbody.innerHTML = "";
             if(appState.produtos.length === 0) {
-                tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; opacity:0.5;'>Nenhum produto cadastrado.</td></tr>";
+                tbody.innerHTML = "<tr><td colspan='6' style='text-align:center; opacity:0.5;'>Nenhum produto cadastrado.</td></tr>";
                 return;
             }
             normalizarConfiguracoes();
@@ -4838,12 +5233,13 @@ ${separador}`;
             tbody.innerHTML = appState.produtos.map(p => {
                 const estoqueAtual = p.estoque || 0;
                 let statusHtml = estoqueAtual > limiteBaixo ? '<span class="badge badge-success">Abastecido</span>' : (estoqueAtual > 0 ? '<span class="badge badge-blue">Crítico</span>' : '<span class="badge badge-danger">Vazio</span>');
-                return `<tr><td><b>${p.nome}</b></td><td>${p.categoria || 'Geral'}</td><td>R$ ${getProdutoPrecoVenda(p, materiasMap).toFixed(2)}</td><td><b>${estoqueAtual}</b> un</td><td>${statusHtml}</td></tr>`;
+                return `<tr><td><b>${p.nome}</b></td><td>${p.categoria || 'Geral'}</td><td>R$ ${getProdutoPrecoVenda(p, materiasMap).toFixed(2)}</td><td><b>${estoqueAtual}</b> un</td><td>${getValidadeResumo(p)}</td><td>${statusHtml}</td></tr>`;
             }).join('');
         }
 
         async function executarAjusteBau(e) {
             e.preventDefault();
+            if(!exigirFuncaoAtiva('estoquePronto')) return;
             if(!exigirAcao('gerenciarEstoque')) return;
             if(!(await validarConcorrenciaEstoque())) return;
             const prodId = document.getElementById('ajuste-bau-prod-id').value;
@@ -4855,6 +5251,7 @@ ${separador}`;
 
             if(tipo === 'adicionar') {
                 produto.estoque = (produto.estoque || 0) + qtd;
+                renovarValidadeItem(produto);
                 registrarMovimentacao({ operacao: 'entrada', qtd: qtd, nome: produto.nome, valorTotalMov: 0, motivo: `Ajuste manual de entrada no estoque.`, classe: 'Operacional' });
                 showToast(`Estoque atualizado! +${qtd} un.`);
             } else if(tipo === 'remover') {
@@ -4878,6 +5275,7 @@ ${separador}`;
 
         function registrarMovimentacaoManual(e) {
             e.preventDefault();
+            if(!exigirFuncaoAtiva('financeiro')) return;
             if(!exigirAcao('financeiro')) return;
             const tipo = document.getElementById('mov-manual-tipo').value;
             const categoria = sanitizeText(document.getElementById('mov-manual-categoria').value);
@@ -4924,7 +5322,7 @@ ${separador}`;
 
             let somaDemanda = ativosPendentes.reduce((acc, p) => acc + getPedidoItens(p).reduce((total, item) => total + item.qtd, 0), 0);
             if(document.getElementById('dash-previsao-demanda')) document.getElementById('dash-previsao-demanda').innerText = `${somaDemanda} un`;
-            renderKanbanPedidos();
+            if(funcaoAtiva('kanbanPedidos')) renderKanbanPedidos();
 
             const bajoHtml = appState.materias
                 .filter(m => m.estoque <= (m.estoqueMinimo ?? estoqueBaixoPadrao))
@@ -4948,6 +5346,21 @@ ${separador}`;
                 })
                 .join('');
             if(document.getElementById('dash-materias-compra-baixo')) document.getElementById('dash-materias-compra-baixo').innerHTML = materiasCompraHtml || "<tr><td colspan='4' class='dashboard-alert-empty'>Nenhuma matéria-prima precisa de compra.</td></tr>";
+
+            const validadeAlertasHtml = [
+                ...appState.materias.map(item => ({ item, tipo: 'Matéria-prima' })),
+                ...appState.produtos.map(item => ({ item, tipo: 'Produto final' }))
+            ]
+                .map(registro => ({ ...registro, status: getStatusValidade(registro.item) }))
+                .filter(registro => ['vencido', 'proximo'].includes(registro.status.codigo))
+                .sort((a, b) => safeNumber(a.status.diasRestantes) - safeNumber(b.status.diasRestantes))
+                .map(({ item, tipo, status }) => {
+                    const restante = status.diasRestantes < 0
+                        ? `Vencido há ${Math.abs(status.diasRestantes)} dia(s)`
+                        : (status.diasRestantes === 0 ? 'Vence hoje' : `${status.diasRestantes} dia(s)`);
+                    return `<tr><td>${tipo}</td><td><b>${escapeHTML(item.nome)}</b><br><small>${safeNumber(item.estoque)} un em estoque</small></td><td>${formatarDataValidade(item.validadeAte)}</td><td>${restante}</td><td><span class="badge ${status.badge}">${status.texto}</span></td></tr>`;
+                }).join('');
+            if(document.getElementById('dash-validade-alertas')) document.getElementById('dash-validade-alertas').innerHTML = validadeAlertasHtml || "<tr><td colspan='5' class='dashboard-alert-empty'>Nenhum item próximo do vencimento.</td></tr>";
 
             const registroPedidosBody = document.getElementById('dash-registro-pedidos-body');
             if (registroPedidosBody) {
@@ -5034,6 +5447,10 @@ ${separador}`;
             const input = document.getElementById('global-search-input');
             const results = document.getElementById('global-search-results');
             if(!input || !results) return;
+            if(!funcaoAtiva('buscaGlobal')) {
+                results.innerHTML = '';
+                return;
+            }
             const termo = input.value.toLowerCase().trim();
             if(!termo) {
                 results.innerHTML = `<div class="muted-note">Digite para buscar em toda a base.</div>`;
@@ -5278,14 +5695,16 @@ ${separador}`;
                             </div>
                         </td>
                         <td><span class="badge badge-warn">${m.estoqueMinimo ?? appState.configuracoes.estoqueBaixoPadrao ?? 5} un</span><br><small>${escapeHTML(appState.fornecedores.find(f => f.id === m.fornecedorId)?.nome || 'Sem fornecedor')}</small></td>
+                        <td>${getValidadeResumo(m)}</td>
                         <td>
                             <button class="btn-action btn-blue-action" onclick="editarMateria('${m.id}')">Editar</button>
                             <button class="btn-action btn-success-action" onclick="editarMateriaRapida('${m.id}')">Salvar</button>
+                            <button class="btn-action btn-blue-action" onclick="configurarValidadeMateria('${m.id}')">Validade</button>
                             <button class="btn-action btn-delete" onclick="deleteMateria('${m.id}')">Remover</button>
                         </td>
                     </tr>
                 `;
-            }).join('') || "<tr><td colspan='6' style='text-align:center; opacity:0.5;'>Nenhuma matéria-prima encontrada.</td></tr>";
+            }).join('') || "<tr><td colspan='7' style='text-align:center; opacity:0.5;'>Nenhuma matéria-prima encontrada.</td></tr>";
         }
 
         function editarEstoqueMateria(id) {
@@ -5293,6 +5712,7 @@ ${separador}`;
         }
 
         async function editarMateriaRapida(id) {
+            if(!exigirFuncaoAtiva('materias')) return;
             if(!exigirAcao('gerenciarEstoque')) return;
             if(!(await validarConcorrenciaEstoque())) return;
             const materia = appState.materias.find(m => m.id === id);
@@ -5302,20 +5722,28 @@ ${separador}`;
 
             const novoEstoque = Math.max(0, parseInt(inputEstoque.value) || 0);
             const novoValor = Math.max(0, safeNumber(inputValor.value));
+            const estoqueAnterior = safeNumber(materia.estoque);
             materia.estoque = novoEstoque;
             materia.valor = novoValor;
+            if(novoEstoque > estoqueAnterior) renovarValidadeItem(materia);
             saveToLocalStorage();
             showToast("Matéria-prima atualizada!");
         }
 
+        function configurarValidadeMateria(id) {
+            configurarValidadeEstoque('materia', id);
+        }
+
         function saveMateria(e) {
             e.preventDefault();
+            if(!exigirFuncaoAtiva('materias')) return;
             if(!exigirAcao('gerenciarEstoque')) return;
             const nome = sanitizeText(document.getElementById('mat-nome').value);
             const categoria = sanitizeText(document.getElementById('mat-categoria').value) || "Geral";
             const valor = Math.max(0, safeNumber(document.getElementById('mat-valor').value));
             const estoque = Math.max(0, parseInt(document.getElementById('mat-estoque').value) || 0);
             const estoqueMinimo = Math.max(0, parseInt(document.getElementById('mat-estoque-minimo').value) || 0);
+            const validadeDias = Math.max(0, parseInt(document.getElementById('mat-validade-dias').value) || 0);
             const fornecedorId = sanitizeText(document.getElementById('mat-fornecedor-id')?.value);
 
             if (!nome || valor < 0) {
@@ -5331,17 +5759,25 @@ ${separador}`;
                     cancelarEdicaoMateria();
                     return;
                 }
-                Object.assign(materia, { nome, categoria, valor, estoque, estoqueMinimo, fornecedorId });
+                const estoqueAnterior = safeNumber(materia.estoque);
+                const validadeAnterior = safeNumber(materia.validadeDias);
+                Object.assign(materia, { nome, categoria, valor, estoque, estoqueMinimo, validadeDias, fornecedorId });
+                if(estoque > estoqueAnterior || validadeDias !== validadeAnterior) renovarValidadeItem(materia);
             } else {
-                appState.materias.push({
+                const novaMateria = {
                     id: 'mat_' + Date.now(),
                     nome,
                     categoria,
                     valor,
                     estoque,
                     estoqueMinimo,
+                    validadeDias,
+                    dataReposicao: '',
+                    validadeAte: '',
                     fornecedorId
-                });
+                };
+                if(estoque > 0) renovarValidadeItem(novaMateria);
+                appState.materias.push(novaMateria);
             }
             registrarAuditoria(estavaEditandoMateria ? 'editar_materia' : 'criar_materia', 'Matérias-Primas', nome);
             saveToLocalStorage();
@@ -5350,6 +5786,7 @@ ${separador}`;
         }
 
         function editarMateria(id) {
+            if(!exigirFuncaoAtiva('materias')) return;
             if(!exigirAcao('gerenciarEstoque')) return;
             const materia = appState.materias.find(m => m.id === id);
             if(!materia) return;
@@ -5360,6 +5797,7 @@ ${separador}`;
             document.getElementById('mat-valor').value = materia.valor || 0;
             document.getElementById('mat-estoque').value = materia.estoque || 0;
             document.getElementById('mat-estoque-minimo').value = materia.estoqueMinimo ?? appState.configuracoes.estoqueBaixoPadrao ?? 5;
+            document.getElementById('mat-validade-dias').value = materia.validadeDias || 0;
             document.getElementById('mat-fornecedor-id').value = materia.fornecedorId || '';
 
             const title = document.getElementById('materia-form-title');
@@ -5384,6 +5822,7 @@ ${separador}`;
         }
 
         function deleteMateria(id) {
+            if(!exigirFuncaoAtiva('materias')) return;
             if(!exigirAcao('gerenciarEstoque')) return;
             const produtosVinculados = appState.produtos.filter(produto =>
                 (produto.receita || []).some(item => item.materiaId === id)
@@ -5421,6 +5860,7 @@ ${separador}`;
 
         function saveFornecedor(e) {
             e.preventDefault();
+            if(!exigirFuncaoAtiva('fornecedores')) return;
             if(!exigirAcao('gerenciarFornecedores')) return;
             const dados = {
                 nome: sanitizeText(document.getElementById('forn-nome').value),
@@ -5442,6 +5882,7 @@ ${separador}`;
         }
 
         function editarFornecedor(id) {
+            if(!exigirFuncaoAtiva('fornecedores')) return;
             if(!exigirAcao('gerenciarFornecedores')) return;
             const f = appState.fornecedores.find(item => item.id === id);
             if(!f) return;
@@ -5465,6 +5906,7 @@ ${separador}`;
         }
 
         function deleteFornecedor(id) {
+            if(!exigirFuncaoAtiva('fornecedores')) return;
             if(!exigirAcao('gerenciarFornecedores')) return;
             const fornecedor = appState.fornecedores.find(f => f.id === id);
             if(!fornecedor || !confirm(`Remover ${fornecedor.nome}?`)) return;
@@ -5512,11 +5954,36 @@ ${separador}`;
             const tbody = document.getElementById('table-produtos-body');
             if(!tbody) return; tbody.innerHTML = "";
             const materiasMap = mapById(appState.materias);
-            tbody.innerHTML = appState.produtos.map(p => `<tr><td><b>${p.nome}</b></td><td>${p.categoria}</td><td>${p.rendimento}x</td><td>R$ ${getProdutoCustoUnitario(p, materiasMap).toFixed(2)}</td><td>R$ ${getProdutoPrecoVenda(p, materiasMap).toFixed(2)}</td><td><b>${p.estoque || 0} un</b></td><td><button class="btn-action btn-blue-action" onclick="editarProduto('${p.id}')">Editar</button><button class="btn-action btn-delete" onclick="deleteProduto('${p.id}')">Deletar</button></td></tr>`).join('') || "<tr><td colspan='7' style='text-align:center; opacity:0.5;'>Nenhum produto cadastrado.</td></tr>";
+            tbody.innerHTML = appState.produtos.map(p => `<tr><td><b>${p.nome}</b></td><td>${p.categoria}</td><td>${p.rendimento}x</td><td>R$ ${getProdutoCustoUnitario(p, materiasMap).toFixed(2)}</td><td>R$ ${getProdutoPrecoVenda(p, materiasMap).toFixed(2)}</td><td><b>${p.estoque || 0} un</b></td><td>${getValidadeResumo(p)}</td><td><button class="btn-action btn-blue-action" onclick="editarProduto('${p.id}')">Editar</button><button class="btn-action btn-blue-action" onclick="configurarValidadeProduto('${p.id}')">Validade</button><button class="btn-action btn-delete" onclick="deleteProduto('${p.id}')">Deletar</button></td></tr>`).join('') || "<tr><td colspan='8' style='text-align:center; opacity:0.5;'>Nenhum produto cadastrado.</td></tr>";
+        }
+
+        function configurarValidadeProduto(id) {
+            configurarValidadeEstoque('produto', id);
+        }
+
+        function configurarValidadeEstoque(tipo, id) {
+            if(!exigirFuncaoAtiva(tipo === 'materia' ? 'materias' : 'produtos')) return;
+            if(!exigirAcao(tipo === 'materia' ? 'gerenciarEstoque' : 'gerenciarProdutos')) return;
+            const colecao = tipo === 'materia' ? appState.materias : appState.produtos;
+            const item = colecao.find(registro => registro.id === id);
+            if(!item) return;
+            const valor = prompt(`Quantos dias ${item.nome} dura após entrar no estoque? Use 0 para desativar.`, item.validadeDias || 0);
+            if(valor === null) return;
+            const dias = Number(valor);
+            if(!Number.isInteger(dias) || dias < 0) {
+                showToast("Informe uma quantidade inteira de dias igual ou maior que zero.");
+                return;
+            }
+            item.validadeDias = dias;
+            renovarValidadeItem(item);
+            registrarAuditoria('configurar_validade', tipo === 'materia' ? 'Matérias-Primas' : 'Produtos', `${item.nome}: ${dias || 'sem controle'} dia(s)`);
+            saveToLocalStorage();
+            showToast(dias > 0 ? `Validade de ${item.nome}: ${dias} dia(s).` : `Controle de validade desativado para ${item.nome}.`);
         }
 
         function saveProduto(e) {
             e.preventDefault();
+            if(!exigirFuncaoAtiva('produtos')) return;
             if(!exigirAcao('gerenciarProdutos')) return;
             const receita = [];
             document.querySelectorAll('.recipe-row').forEach(r => {
@@ -5530,6 +5997,7 @@ ${separador}`;
             const categoria = sanitizeText(document.getElementById('prod-categoria').value) || "Geral";
             const rendimento = Math.max(1, parseInt(document.getElementById('prod-rendimento').value) || 1);
             const lucroPerc = Math.max(0, safeNumber(document.getElementById('prod-lucro-perc').value));
+            const validadeDias = Math.max(0, parseInt(document.getElementById('prod-validade-dias').value) || 0);
 
             if (!nome || receita.length === 0) {
                 showToast("Cadastre nome e ao menos um insumo na receita.");
@@ -5544,7 +6012,9 @@ ${separador}`;
                     cancelarEdicaoProduto();
                     return;
                 }
-                Object.assign(produto, { nome, categoria, rendimento, lucroPerc, receita });
+                const validadeAnterior = safeNumber(produto.validadeDias);
+                Object.assign(produto, { nome, categoria, rendimento, lucroPerc, validadeDias, receita });
+                if(validadeDias !== validadeAnterior) renovarValidadeItem(produto);
             } else {
                 appState.produtos.push({
                     id: 'prod_' + Date.now(),
@@ -5553,6 +6023,9 @@ ${separador}`;
                     rendimento,
                     lucroPerc,
                     estoque: 0,
+                    validadeDias,
+                    dataReposicao: '',
+                    validadeAte: '',
                     receita
                 });
             }
@@ -5563,6 +6036,7 @@ ${separador}`;
         }
 
         function editarProduto(id) {
+            if(!exigirFuncaoAtiva('produtos')) return;
             if(!exigirAcao('gerenciarProdutos')) return;
             const produto = appState.produtos.find(p => p.id === id);
             if(!produto) return;
@@ -5572,6 +6046,7 @@ ${separador}`;
             document.getElementById('prod-categoria').value = produto.categoria || '';
             document.getElementById('prod-rendimento').value = produto.rendimento || 1;
             document.getElementById('prod-lucro-perc').value = produto.lucroPerc ?? 100;
+            document.getElementById('prod-validade-dias').value = produto.validadeDias || 0;
 
             const container = document.getElementById('recipe-ingredients-container');
             if(container) container.innerHTML = "";
@@ -5604,6 +6079,7 @@ ${separador}`;
         }
 
         function deleteProduto(id) {
+            if(!exigirFuncaoAtiva('produtos')) return;
             if(!exigirAcao('gerenciarProdutos')) return;
             const pedidosAtivos = appState.pedidos.filter(pedido =>
                 !['Entregue', 'Cancelado'].includes(pedido.status) &&
@@ -5738,6 +6214,7 @@ ${separador}`;
         }
 
         function exportarRelatorioFinanceiroCSV() {
+            if(!exigirFuncaoAtiva('relatorios')) return;
             if(!exigirAcao('financeiro')) return;
             baixarCSV('relatorio-financeiro.csv', ['Data', 'Tipo', 'Categoria', 'Descrição', 'Motivo', 'Valor'], getMovimentacoesFiltradasRelatorio().map(m => [
                 m.data, ['entrada', 'venda_pedido'].includes(m.operacao) ? 'Entrada' : 'Saída', m.classe, m.nome, m.motivo, safeNumber(m.valorTotalMov).toFixed(2)
@@ -5745,6 +6222,7 @@ ${separador}`;
         }
 
         function exportarClientesCSV() {
+            if(!exigirFuncaoAtiva('relatorios')) return;
             if(!exigirAcao('financeiro')) return;
             baixarCSV('clientes.csv', ['Empresa/Grupo', 'Nome', 'Cargo', 'Contatos', 'Progresso Fidelidade'], appState.clientesPastas.flatMap(p =>
                 p.membros.map(m => [p.local, m.nome, m.cargo, (m.contatos || []).join(', '), safeNumber(p.fidelidade?.progresso).toFixed(2)])
@@ -5752,6 +6230,7 @@ ${separador}`;
         }
 
         function exportarEstoqueCSV() {
+            if(!exigirFuncaoAtiva('relatorios')) return;
             if(!exigirAcao('financeiro')) return;
             baixarCSV('estoque.csv', ['Tipo', 'Nome', 'Categoria', 'Quantidade', 'Valor Unitário', 'Fornecedor'], [
                 ...appState.materias.map(m => ['Matéria-prima', m.nome, m.categoria, m.estoque, safeNumber(m.valor).toFixed(2), appState.fornecedores.find(f => f.id === m.fornecedorId)?.nome || '']),
@@ -5760,6 +6239,7 @@ ${separador}`;
         }
 
         function imprimirRelatorioFinanceiro() {
+            if(!exigirFuncaoAtiva('relatorios')) return;
             if(!exigirAcao('financeiro')) return;
             const linhas = getMovimentacoesFiltradasRelatorio();
             const janela = window.open('', '_blank', 'width=900,height=700');
@@ -5778,11 +6258,19 @@ ${separador}`;
         }
 
         function executarTestesSistema() {
+            if(!exigirFuncaoAtiva('diagnostico')) return;
             if(!exigirAcao('testes')) return;
             const ids = [...appState.materias, ...appState.produtos, ...appState.pedidos, ...appState.fornecedores].map(item => item.id);
             const testes = [
                 ['IDs únicos', new Set(ids).size === ids.length],
                 ['Estoque sem valores negativos', [...appState.materias, ...appState.produtos].every(item => safeNumber(item.estoque) >= 0)],
+                ['Controle de funções consistente', Object.keys(FUNCOES_SISTEMA).every(chave => typeof appState.configuracoes.funcoesAtivas[chave] === 'boolean')],
+                ['Validades consistentes', [...appState.materias, ...appState.produtos].every(item => {
+                    const dias = safeNumber(item.validadeDias);
+                    if(dias < 0 || !Number.isInteger(dias)) return false;
+                    if(dias === 0) return !item.validadeAte;
+                    return safeNumber(item.estoque) <= 0 || !item.validadeAte || Boolean(parseDataLocal(item.validadeAte));
+                })],
                 ['Pedidos com itens válidos', appState.pedidos.every(p => getPedidoItens(p).length > 0)],
                 ['Pagamentos dentro do total', appState.pedidos.every(p => safeNumber(p.valorPago) <= getPedidoTotal(p) + 0.01)],
                 ['Receitas com matérias existentes', appState.produtos.every(p => (p.receita || []).every(r => appState.materias.some(m => m.id === r.materiaId)))],
@@ -5796,12 +6284,14 @@ ${separador}`;
         }
 
         function exportarJSON() {
+            if(!exigirFuncaoAtiva('backupDados')) return;
             if(!exigirAcao('backup')) return;
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
             const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "Blackwater_ERP_Ultra.json"); dl.click();
         }
 
         function resetarSistema() {
+            if(!exigirFuncaoAtiva('backupDados')) return;
             if(!exigirAcao('resetar')) return;
             if (confirm("Tem certeza que deseja apagar TODOS os dados do sistema? Esta ação é irreversível.")) {
                 const validacao = prompt("Para confirmar a exclusão de todas as informações, digite DELETAR:");
